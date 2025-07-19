@@ -1,6 +1,6 @@
 """Model registry for task-specific implementations."""
 
-from typing import Dict, Type
+from typing import Dict, List, Type
 
 from ..core.model import TritonModel
 
@@ -24,6 +24,6 @@ def get_task_model(task_name: str) -> Type[TritonModel]:
     return _TASK_REGISTRY[task_name]
 
 
-def list_tasks() -> list[str]:
+def list_tasks() -> List[str]:
     """List all registered tasks."""
     return list(_TASK_REGISTRY.keys())
