@@ -22,14 +22,15 @@ class TritonModel(ABC):
         self._converter: Optional[ModelConverter] = None
 
     @classmethod
+    @classmethod
     @abstractmethod
-    def from_pretrained(cls, model_name_or_path: str, **kwargs) -> "TritonModel":
+    def from_pretrained(cls, model_name_or_path: str, **kwargs: Any) -> "TritonModel":
         """Load a model from a pretrained source."""
         pass
 
     @classmethod
     def from_huggingface(
-        cls, model_id: str, task: Optional[str] = None, **kwargs
+        cls, model_id: str, task: Optional[str] = None, **kwargs: Any
     ) -> "TritonModel":
         """Create a model from HuggingFace hub."""
         from ..tasks import get_task_model
@@ -81,7 +82,7 @@ class TritonModel(ABC):
         # Postprocess
         return self.postprocess(outputs)
 
-    def convert(self, output_format: str = "onnx", **kwargs) -> Path:
+    def convert(self, output_format: str = "onnx", **kwargs: Any) -> Path:
         """Convert the model to deployment format."""
         if self._converter is None:
             self._converter = self._get_converter()
@@ -101,7 +102,7 @@ class TritonModel(ABC):
         """Get the appropriate converter for this model type."""
         pass
 
-    def quantize(self, method: str = "dynamic", **kwargs) -> "TritonModel":
+    def quantize(self, method: str = "dynamic", **kwargs: Any) -> "TritonModel":
         """Quantize the model for better performance."""
         if self._converter is None:
             self._converter = self._get_converter()

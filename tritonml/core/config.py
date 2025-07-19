@@ -100,7 +100,7 @@ class TritonConfig:
 
         return "\n".join(config_lines)
 
-    def save_config(self):
+    def save_config(self) -> None:
         """Save the configuration to config.pbtxt."""
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         self.config_path.write_text(self.to_pbtxt())
@@ -115,7 +115,7 @@ class TextClassificationConfig(TritonConfig):
     labels: List[str] = field(default_factory=list)
     tokenizer_name: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Set default shapes for text classification."""
         if not self.input_shapes:
             self.input_shapes = {

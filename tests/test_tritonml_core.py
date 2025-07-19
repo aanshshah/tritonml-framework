@@ -161,7 +161,7 @@ class MockTritonModel(TritonModel):
 class TestModelDeployment:
     """Test model deployment functionality."""
 
-    @patch("tritonml.core.client.TritonClient")
+    @patch("tritonml.core.model.TritonClient")
     def test_deploy_model(self, mock_client_class):
         """Test deploying a model."""
         mock_client = Mock()
@@ -170,11 +170,13 @@ class TestModelDeployment:
 
         model = MockTritonModel(TritonConfig(model_name="test"))
 
-        with patch.object(model, "convert") as mock_convert:
+        with patch("pathlib.Path.exists", return_value=True):
             client = model.deploy(server_url="localhost:8000")
 
             assert client == mock_client
-            mock_convert.assert_called_once()
+            mock_client_class.assert_called_once_with(
+                server_url="localhost:8000", model_name="test"
+            )
 
 
 if __name__ == "__main__":

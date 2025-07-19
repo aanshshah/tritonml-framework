@@ -27,7 +27,7 @@ class BenchmarkRunner:
         """
         self.model = model
         self.warmup_runs = warmup_runs
-        self.results = {}
+        self.results: Dict[str, Any] = {}
 
     def benchmark_dataset(
         self,
@@ -56,7 +56,7 @@ class BenchmarkRunner:
         logger.info(f"Starting benchmark on dataset: {dataset_loader.dataset_name}")
         logger.info(f"Total samples: {len(samples)}")
 
-        results = {
+        results: Dict[str, Any] = {
             "dataset": dataset_loader.dataset_name,
             "split": dataset_loader.split,
             "num_samples": len(samples),
@@ -125,18 +125,18 @@ class BenchmarkRunner:
 
             results["batch_results"][f"batch_{batch_size}"] = batch_results
 
-            mean_lat = batch_results["latency_ms"]["mean"]
+            mean_lat = float(batch_results["latency_ms"]["mean"])  # type: ignore[index]
             logger.info(f"  Mean latency: {mean_lat:.2f} ms")
-            p95_lat = batch_results["latency_ms"]["p95"]
+            p95_lat = float(batch_results["latency_ms"]["p95"])  # type: ignore[index]
             logger.info(f"  P95 latency: {p95_lat:.2f} ms")
-            throughput = batch_results["throughput"]["samples_per_second"]
+            throughput = float(batch_results["throughput"]["samples_per_second"])  # type: ignore[index]
             logger.info(f"  Throughput: {throughput:.2f} samples/sec")
 
         self.results[dataset_loader.dataset_name] = results
         return results
 
     def benchmark_multiple_datasets(
-        self, dataset_configs: List[Dict[str, Any]], **kwargs
+        self, dataset_configs: List[Dict[str, Any]], **kwargs: Any
     ) -> Dict[str, Any]:
         """Benchmark model on multiple datasets.
 
@@ -223,7 +223,7 @@ class BenchmarkRunner:
 
         logger.info(f"Results saved to {output_path}")
 
-    def print_summary(self):
+    def print_summary(self) -> None:
         """Print a summary of benchmark results."""
         print("\n" + "=" * 80)
         print("BENCHMARK SUMMARY")

@@ -20,7 +20,7 @@ class ModelConverter(ABC):
 
     @abstractmethod
     def convert(
-        self, output_path: Union[str, Path], output_format: str = "onnx", **kwargs
+        self, output_path: Union[str, Path], output_format: str = "onnx", **kwargs: Any
     ) -> Path:
         """Convert the model to the specified format."""
         pass
@@ -30,7 +30,7 @@ class ModelConverter(ABC):
         self,
         method: str = "dynamic",
         output_path: Optional[Union[str, Path]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Quantize the model for better performance."""
         pass
@@ -75,7 +75,7 @@ class ONNXConverter(ModelConverter):
         output_path: Union[str, Path],
         output_format: str = "onnx",
         opset_version: int = 14,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Convert model to ONNX format."""
         output_path = Path(output_path)
@@ -91,7 +91,7 @@ class ONNXConverter(ModelConverter):
         self,
         method: str = "dynamic",
         output_path: Optional[Union[str, Path]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Quantize ONNX model."""
         if output_path is None:
@@ -131,7 +131,7 @@ class TorchScriptConverter(ModelConverter):
         output_path: Union[str, Path],
         output_format: str = "torchscript",
         trace_mode: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Convert model to TorchScript format."""
         output_path = Path(output_path)
@@ -146,7 +146,7 @@ class TorchScriptConverter(ModelConverter):
         self,
         method: str = "dynamic",
         output_path: Optional[Union[str, Path]] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Quantize TorchScript model."""
         raise NotImplementedError("TorchScript quantization not yet implemented")
@@ -168,7 +168,7 @@ class TensorRTConverter(ModelConverter):
         output_path: Union[str, Path],
         output_format: str = "tensorrt",
         precision: str = "fp16",
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Convert model to TensorRT format."""
         output_path = Path(output_path)
@@ -184,7 +184,7 @@ class TensorRTConverter(ModelConverter):
         method: str = "int8",
         output_path: Optional[Union[str, Path]] = None,
         calibration_data: Optional[Any] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Quantize TensorRT model."""
         raise NotImplementedError("TensorRT quantization not yet implemented")
@@ -213,4 +213,4 @@ def get_converter(format: str, model: Any, config: Dict[str, Any]) -> ModelConve
             f"Supported formats: {list(converters.keys())}"
         )
 
-    return converter_class(model, config)
+    return converter_class(model, config)  # type: ignore[abstract]

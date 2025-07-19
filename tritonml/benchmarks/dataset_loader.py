@@ -45,14 +45,15 @@ class HuggingFaceDatasetLoader:
         )
 
         # Limit samples if requested
-        if max_samples is not None and len(self._dataset) > max_samples:
+        if max_samples is not None and self._dataset is not None and len(self._dataset) > max_samples:
             self._dataset = self._dataset.select(range(max_samples))
             logger.info(f"Limited dataset to {max_samples} samples")
 
-        logger.info(f"Loaded {len(self._dataset)} samples")
+        if self._dataset is not None:
+            logger.info(f"Loaded {len(self._dataset)} samples")
         return self._dataset
 
-    def set_preprocessor(self, preprocessor):
+    def set_preprocessor(self, preprocessor: Any) -> None:
         """Set a custom preprocessor function.
 
         Args:

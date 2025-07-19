@@ -36,11 +36,11 @@ class TextClassificationModel(TritonModel):
         model_name: Optional[str] = None,
         labels: Optional[List[str]] = None,
         max_sequence_length: int = 128,
-        **kwargs,
+        **kwargs: Any,
     ) -> "TextClassificationModel":
         """Load a text classification model from HuggingFace."""
         # Load model and tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)  # type: ignore[no-untyped-call]
         model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path)
 
         # Infer labels if not provided
@@ -72,7 +72,9 @@ class TextClassificationModel(TritonModel):
             inputs = [inputs]
 
         # Tokenize inputs
-        encoded = self._tokenizer(
+        if self._tokenizer is None:
+            raise RuntimeError("No tokenizer loaded")
+        encoded = self._tokenizer(  # type: ignore[operator]
             inputs,
             max_length=self.config.max_sequence_length,
             padding="max_length",
@@ -94,11 +96,14 @@ class TextClassificationModel(TritonModel):
 
         # Convert to labels
         if len(predictions.shape) == 0:
-            # Single prediction
-            return self.config.labels[predictions.item()]
+            # Single prediction (scalar)
+            return self.config.labels[int(predictions.item())]
+        elif predictions.shape[0] == 1:
+            # Single prediction in batch dimension
+            return self.config.labels[int(predictions[0])]
         else:
             # Batch predictions
-            return [self.config.labels[idx] for idx in predictions]
+            return [self.config.labels[int(idx)] for idx in predictions]
 
     def predict_proba(self, inputs: Union[str, List[str]]) -> np.ndarray:
         """Get prediction probabilities."""
@@ -122,10 +127,12 @@ class TextClassificationModel(TritonModel):
     def _softmax(self, x: np.ndarray) -> np.ndarray:
         """Apply softmax function."""
         exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)  # type: ignore[no-any-return]
 
     def _get_converter(self) -> ModelConverter:
         """Get the ONNX converter for HuggingFace models."""
+        if self._model is None or self._tokenizer is None:
+            raise RuntimeError("Model and tokenizer must be loaded first")
         return HuggingFaceONNXConverter(
             model=self._model,
             tokenizer=self._tokenizer,
@@ -152,7 +159,9 @@ class TextClassificationModel(TritonModel):
         """Save the tokenizer to disk."""
         path = Path(path)
         path.mkdir(parents=True, exist_ok=True)
-        self._tokenizer.save_pretrained(str(path))
+        if self._tokenizer is None:
+            raise RuntimeError("No tokenizer loaded")
+        self._tokenizer.save_pretrained(str(path))  # type: ignore[attr-defined]
 
 
 class EmotionClassifier(TextClassificationModel):
@@ -162,14 +171,20 @@ class EmotionClassifier(TextClassificationModel):
     def from_pretrained(
         cls,
         model_name_or_path: str = ("cardiffnlp/twitter-roberta-base-emotion"),
-        **kwargs,
+        model_name: Optional[str] = None,
+        labels: Optional[List[str]] = None,
+        max_sequence_length: int = 128,
+        **kwargs: Any,
     ) -> "EmotionClassifier":
         """Load the emotion classification model."""
         # Set emotion-specific defaults
-        kwargs.setdefault("labels", ["anger", "joy", "optimism", "sadness"])
-        kwargs.setdefault("model_name", "emotion-classifier")
+        if labels is None:
+            labels = ["anger", "joy", "optimism", "sadness"]
+        if model_name is None:
+            model_name = "emotion-classifier"
 
-        return super().from_pretrained(model_name_or_path, **kwargs)
+        result = super().from_pretrained(model_name_or_path, model_name=model_name, labels=labels, max_sequence_length=max_sequence_length, **kwargs)
+        return result  # type: ignore[return-value]
 
 
 class SentimentClassifier(TextClassificationModel):
@@ -179,11 +194,17 @@ class SentimentClassifier(TextClassificationModel):
     def from_pretrained(
         cls,
         model_name_or_path: str = ("distilbert-base-uncased-finetuned-sst-2-english"),
-        **kwargs,
+        model_name: Optional[str] = None,
+        labels: Optional[List[str]] = None,
+        max_sequence_length: int = 128,
+        **kwargs: Any,
     ) -> "SentimentClassifier":
         """Load the sentiment classification model."""
         # Set sentiment-specific defaults
-        kwargs.setdefault("labels", ["negative", "positive"])
-        kwargs.setdefault("model_name", "sentiment-classifier")
+        if labels is None:
+            labels = ["negative", "positive"]
+        if model_name is None:
+            model_name = "sentiment-classifier"
 
-        return super().from_pretrained(model_name_or_path, **kwargs)
+        result = super().from_pretrained(model_name_or_path, model_name=model_name, labels=labels, max_sequence_length=max_sequence_length, **kwargs)
+        return result  # type: ignore[return-value]

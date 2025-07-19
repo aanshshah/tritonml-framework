@@ -1,7 +1,7 @@
 """Task-specific model implementations."""
 
 from .image_classification import ImageClassificationModel
-from .registry import get_task_model, register_task_model
+from .registry import get_task_model, list_tasks, register_task_model
 from .text_classification import TextClassificationModel
 
 # Register default task models
@@ -13,4 +13,5 @@ __all__ = [
     "ImageClassificationModel",
     "get_task_model",
     "register_task_model",
+    "list_tasks",
 ]

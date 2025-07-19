@@ -1,7 +1,7 @@
 """Docker deployment utilities for TritonML."""
 
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -9,7 +9,7 @@ import yaml
 def generate_dockerfile(
     base_image: str = "nvcr.io/nvidia/tritonserver:24.08-py3",
     model_repository: str = "/models",
-    additional_packages: Optional[list] = None,
+    additional_packages: Optional[List[str]] = None,
 ) -> str:
     """Generate a Dockerfile for Triton deployment."""
 
@@ -42,8 +42,8 @@ def generate_dockerfile(
 def generate_docker_compose(
     service_name: str = "triton",
     model_repository: str = "./models",
-    ports: Dict[str, int] = None,
-    environment: Dict[str, str] = None,
+    ports: Optional[Dict[str, int]] = None,
+    environment: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """Generate docker-compose configuration."""
 

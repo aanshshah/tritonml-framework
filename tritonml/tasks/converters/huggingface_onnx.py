@@ -34,7 +34,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
         output_format: str = "onnx",
         opset_version: int = 14,
         optimize_for_gpu: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Convert HuggingFace model to ONNX format."""
         output_path = Path(output_path)
@@ -55,7 +55,8 @@ class HuggingFaceONNXConverter(ONNXConverter):
         ort_model.save_pretrained(str(output_path))
 
         # Save tokenizer
-        self.tokenizer.save_pretrained(str(output_path))
+        if hasattr(self.tokenizer, 'save_pretrained'):
+            self.tokenizer.save_pretrained(str(output_path))
 
         # Log model size
         model_size = self.get_model_size(output_path)
@@ -74,7 +75,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
         method: str = "dynamic",
         output_path: Optional[Union[str, Path]] = None,
         per_channel: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Path:
         """Quantize the ONNX model for better performance."""
         if output_path is None:
@@ -181,7 +182,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
 
             # Test with sample input
             test_text = "This is a test input for validation."
-            inputs = self.tokenizer(
+            inputs = self.tokenizer(  # type: ignore[operator]
                 test_text,
                 return_tensors="pt",
                 max_length=self.config.get("max_length", 128),

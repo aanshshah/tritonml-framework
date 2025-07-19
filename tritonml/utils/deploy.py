@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, cast
 
 from ..core.client import TritonClient
 from ..core.model import TritonModel
@@ -15,7 +15,7 @@ def deploy(
     server_url: str = "localhost:8000",
     quantize: bool = True,
     optimize: bool = True,
-    **kwargs,
+    **kwargs: Any,
 ) -> TritonClient:
     """Deploy a model to Triton server with optional optimizations."""
 
@@ -53,7 +53,7 @@ def quick_deploy(
     model_name: str,
     task: str = "text-classification",
     server_url: str = "localhost:8000",
-    **kwargs,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Quick deployment with minimal configuration."""
 
@@ -93,6 +93,7 @@ def deploy_from_config(config_path: Union[str, Path]) -> TritonClient:
     server_url = config.get("server_url", "localhost:8000")
     model_config = config.get("model_config", {})
 
-    return quick_deploy(
+    result = quick_deploy(
         model_name=model_name, task=task, server_url=server_url, **model_config
-    )["client"]
+    )
+    return cast(TritonClient, result["client"])

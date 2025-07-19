@@ -33,7 +33,7 @@ class TritonClient:
     def is_server_ready(self) -> bool:
         """Check if the Triton server is ready."""
         try:
-            return self._client.is_server_ready()
+            return bool(self._client.is_server_ready())
         except Exception as e:
             logger.error(f"Server health check failed: {e}")
             return False
@@ -41,9 +41,9 @@ class TritonClient:
     def is_model_ready(self) -> bool:
         """Check if the model is ready for inference."""
         try:
-            return self._client.is_model_ready(
+            return bool(self._client.is_model_ready(
                 model_name=self.model_name, model_version=self.model_version
-            )
+            ))
         except Exception as e:
             logger.error(f"Model ready check failed: {e}")
             return False
@@ -54,7 +54,7 @@ class TritonClient:
             self._model_metadata = self._client.get_model_metadata(
                 model_name=self.model_name, model_version=self.model_version
             )
-        return self._model_metadata
+        return self._model_metadata  # type: ignore[return-value]
 
     def get_model_config(self) -> Dict[str, Any]:
         """Get model configuration from the server."""
@@ -62,7 +62,7 @@ class TritonClient:
             self._model_config = self._client.get_model_config(
                 model_name=self.model_name, model_version=self.model_version
             )
-        return self._model_config
+        return self._model_config  # type: ignore[return-value]
 
     def prepare_inputs(
         self, inputs: Dict[str, np.ndarray]
@@ -97,7 +97,7 @@ class TritonClient:
         inputs: Dict[str, np.ndarray],
         outputs: Optional[List[str]] = None,
         request_id: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, np.ndarray]:
         """Run inference on the model."""
         # Prepare inputs
@@ -155,7 +155,7 @@ class TritonClient:
             stats = self._client.get_inference_statistics(
                 model_name=self.model_name, model_version=self.model_version
             )
-            return stats
+            return stats  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to get statistics: {e}")
             return {}
@@ -194,11 +194,11 @@ class TritonClient:
         # Default to FP32
         return "FP32"
 
-    def __enter__(self):
+    def __enter__(self) -> 'TritonClient':
         """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Context manager exit."""
         # Could add cleanup logic here if needed
         pass

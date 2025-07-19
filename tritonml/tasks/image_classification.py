@@ -1,6 +1,6 @@
 """Image classification model implementation."""
 
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -30,8 +30,8 @@ class ImageClassificationModel(TritonModel):
         model_name_or_path: str,
         model_name: Optional[str] = None,
         labels: Optional[List[str]] = None,
-        input_size: tuple = (224, 224),
-        **kwargs,
+        input_size: Tuple[int, int] = (224, 224),
+        **kwargs: Any,
     ) -> "ImageClassificationModel":
         """Load an image classification model."""
         # This would load from HuggingFace, torchvision, etc.
@@ -57,12 +57,16 @@ class ImageClassificationModel(TritonModel):
 
         # Convert to labels if available
         if hasattr(self.config, "labels") and self.config.labels:
+            labels = getattr(self.config, "labels", [])
             if len(predictions.shape) == 0:
-                return self.config.labels[predictions.item()]
+                return str(labels[predictions.item()])
             else:
-                return [self.config.labels[idx] for idx in predictions]
+                return [str(labels[idx]) for idx in predictions]
         else:
-            return predictions
+            if len(predictions.shape) == 0:
+                return str(predictions.item())
+            else:
+                return [str(idx) for idx in predictions]
 
     def _get_converter(self) -> ModelConverter:
         """Get the appropriate converter for image models."""

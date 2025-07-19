@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @click.group()
 @click.version_option(version="0.1.0")
-def cli():
+def cli() -> None:
     """TritonML - Deploy ML models to Triton Inference Server."""
     pass
 
@@ -36,7 +36,7 @@ def deploy_command(
     name: Optional[str],
     quantize: bool,
     optimize: bool,
-):
+) -> None:
     """Deploy a model to Triton server."""
     try:
         if task is None:
@@ -55,7 +55,7 @@ def deploy_command(
         }
         if name:
             deployment_args["model_name"] = name
-        deployment = quick_deploy(**deployment_args)
+        deployment = quick_deploy(**deployment_args)  # type: ignore[arg-type]
 
         click.echo("\n✅ Model deployed successfully!")
         click.echo(f"Model: {deployment['model_name']}")
@@ -64,7 +64,7 @@ def deploy_command(
 
     except Exception as e:
         click.echo(f"❌ Deployment failed: {e}", err=True)
-        raise click.Exit(1)
+        raise SystemExit(1)
 
 
 @cli.command()
@@ -74,7 +74,7 @@ def deploy_command(
     "--format", "-f", default="onnx", help="Output format (onnx, torchscript, tensorrt)"
 )
 @click.option("--quantize/--no-quantize", default=False, help="Quantize model")
-def convert(model_path: str, output: Optional[str], format: str, quantize: bool):
+def convert(model_path: str, output: Optional[str], format: str, quantize: bool) -> None:
     """Convert a model to deployment format."""
     click.echo(f"Converting model from {model_path} to {format} format...")
 
@@ -86,7 +86,7 @@ def convert(model_path: str, output: Optional[str], format: str, quantize: bool)
 @click.argument("model_name")
 @click.argument("text")
 @click.option("--server", "-s", default="localhost:8000", help="Triton server URL")
-def predict(model_name: str, text: str, server: str):
+def predict(model_name: str, text: str, server: str) -> None:
     """Run inference on deployed model."""
     try:
         from ..core.client import TritonClient
@@ -114,11 +114,11 @@ def predict(model_name: str, text: str, server: str):
 
     except Exception as e:
         click.echo(f"❌ Prediction failed: {e}", err=True)
-        raise click.Exit(1)
+        raise SystemExit(1)
 
 
 @cli.command()
-def list_tasks():
+def list_tasks() -> None:
     """List available model tasks."""
     from ..tasks import list_tasks as get_tasks
 
@@ -142,7 +142,7 @@ def benchmark(
     dataset: str,
     num_samples: int,
     output: str,
-):
+) -> None:
     """Benchmark a deployed model."""
     try:
         from ..core.client import TritonClient
@@ -158,7 +158,9 @@ def benchmark(
             from ..tasks import TextClassificationModel
 
             # Create model instance connected to deployed model
-            model = TextClassificationModel(model_name=model_name)
+            from ..core.config import TextClassificationConfig
+            config = TextClassificationConfig(model_name=model_name)
+            model = TextClassificationModel(config)
             model._client = TritonClient(server_url=server, model_name=model_name)
 
             # Create dataset loader
@@ -217,18 +219,18 @@ def benchmark(
 
     except Exception as e:
         click.echo(f"❌ Benchmark failed: {e}", err=True)
-        raise click.Exit(1)
+        raise SystemExit(1)
 
 
 @cli.group()
-def model():
+def model() -> None:
     """Model management commands."""
     pass
 
 
 @model.command("list")
 @click.option("--server", "-s", default="localhost:8000", help="Triton server URL")
-def list_models(server: str):
+def list_models(server: str) -> None:
     """List models on Triton server."""
     try:
         import tritonclient.http as httpclient
@@ -247,7 +249,7 @@ def list_models(server: str):
 
     except Exception as e:
         click.echo(f"❌ Failed to list models: {e}", err=True)
-        raise click.Exit(1)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
