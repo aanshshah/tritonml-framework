@@ -1,13 +1,15 @@
 """Model registry for task-specific implementations."""
 
-from typing import Dict, Type, Optional
+from typing import Dict, Type
 from ..core.model import TritonModel
 
 # Global registry of task models
 _TASK_REGISTRY: Dict[str, Type[TritonModel]] = {}
 
 
-def register_task_model(task_name: str, model_class: Type[TritonModel]) -> None:
+def register_task_model(
+        task_name: str, model_class: Type[TritonModel]
+) -> None:
     """Register a model class for a specific task."""
     _TASK_REGISTRY[task_name.lower()] = model_class
 

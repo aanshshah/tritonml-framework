@@ -10,7 +10,7 @@ register_task_model("image-classification", ImageClassificationModel)
 
 __all__ = [
     "TextClassificationModel",
-    "ImageClassificationModel", 
+    "ImageClassificationModel",
     "get_task_model",
     "register_task_model"
 ]

@@ -9,7 +9,7 @@ setup(
     name="tritonml",
     version="0.1.0",
     author="TritonML Contributors",
-    description="A framework for deploying ML models to Triton Inference Server",
+    description="A framework for deploying ML models to Triton Server",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/aanshshah/tritonml",

@@ -1,4 +1,4 @@
-"""TritonML - A framework for deploying ML models to Triton Inference Server."""
+"""TritonML - A framework for deploying ML models to Triton Server."""
 
 __version__ = "0.1.0"
 
@@ -11,7 +11,7 @@ from .benchmarks import HuggingFaceDatasetLoader, BenchmarkRunner
 
 __all__ = [
     "TritonModel",
-    "TritonClient", 
+    "TritonClient",
     "ModelConverter",
     "TextClassificationModel",
     "ImageClassificationModel",

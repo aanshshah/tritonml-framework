@@ -1,8 +1,8 @@
 """Image classification model implementation."""
 
-from typing import Dict, Any, List, Union, Optional
+from typing import Dict, List, Union, Optional
 import numpy as np
-from pathlib import Path
+# from pathlib import Path  # Unused import
 
 from ..core.model import TritonModel
 from ..core.config import TritonConfig
@@ -11,7 +11,7 @@ from ..core.converter import ModelConverter
 
 class ImageClassificationModel(TritonModel):
     """Image classification model for Triton deployment."""
-    
+
     def __init__(self, config: TritonConfig):
         """Initialize image classification model."""
         super().__init__(config)
@@ -21,7 +21,7 @@ class ImageClassificationModel(TritonModel):
             "mean": [0.485, 0.456, 0.406],
             "std": [0.229, 0.224, 0.225]
         }
-    
+
     @classmethod
     def from_pretrained(
         cls,
@@ -33,22 +33,28 @@ class ImageClassificationModel(TritonModel):
     ) -> "ImageClassificationModel":
         """Load an image classification model."""
         # This would load from HuggingFace, torchvision, etc.
-        raise NotImplementedError("Image classification model loading to be implemented")
-    
-    def preprocess(self, inputs: Union[np.ndarray, List[np.ndarray]]) -> Dict[str, np.ndarray]:
+        raise NotImplementedError(
+            "Image classification model loading to be implemented"
+        )
+
+    def preprocess(
+            self, inputs: Union[np.ndarray, List[np.ndarray]]
+    ) -> Dict[str, np.ndarray]:
         """Preprocess image inputs for inference."""
         # Image preprocessing logic
         raise NotImplementedError("Image preprocessing to be implemented")
-    
-    def postprocess(self, outputs: Dict[str, np.ndarray]) -> Union[str, List[str]]:
+
+    def postprocess(
+            self, outputs: Dict[str, np.ndarray]
+    ) -> Union[str, List[str]]:
         """Postprocess model outputs to get predictions."""
         # Get predictions from logits
         logits = outputs.get("logits", outputs.get("output", None))
         if logits is None:
             raise ValueError("No logits found in model outputs")
-        
+
         predictions = np.argmax(logits, axis=-1)
-        
+
         # Convert to labels if available
         if hasattr(self.config, "labels") and self.config.labels:
             if len(predictions.shape) == 0:
@@ -57,7 +63,7 @@ class ImageClassificationModel(TritonModel):
                 return [self.config.labels[idx] for idx in predictions]
         else:
             return predictions
-    
+
     def _get_converter(self) -> ModelConverter:
         """Get the appropriate converter for image models."""
         # This would return appropriate converter based on model type
