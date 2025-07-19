@@ -101,7 +101,7 @@ class BenchmarkRunner:
             # Calculate statistics
             latencies_array = np.array(latencies)
 
-            batch_results = {
+            batch_results: Dict[str, Any] = {
                 "batch_size": batch_size,
                 "num_batches": len(batches),
                 "runs": runs_per_batch,
@@ -125,14 +125,19 @@ class BenchmarkRunner:
 
             results["batch_results"][f"batch_{batch_size}"] = batch_results
 
-            mean_lat = float(batch_results["latency_ms"]["mean"])  # type: ignore[index]
-            logger.info(f"  Mean latency: {mean_lat:.2f} ms")
-            p95_lat = float(batch_results["latency_ms"]["p95"])  # type: ignore[index]
-            logger.info(f"  P95 latency: {p95_lat:.2f} ms")
-            throughput = float(
-                batch_results["throughput"]["samples_per_second"]
-            )  # type: ignore[index]
-            logger.info(f"  Throughput: {throughput:.2f} samples/sec")
+            # Log results - access nested dicts step by step for mypy
+            latency_dict = batch_results["latency_ms"]
+            throughput_dict = batch_results["throughput"]
+
+            mean_latency = latency_dict["mean"]  # type: ignore[index]
+            p95_latency = latency_dict["p95"]  # type: ignore[index]
+            samples_per_sec = throughput_dict[
+                "samples_per_second"
+            ]  # type: ignore[index]
+
+            logger.info(f"  Mean latency: {mean_latency:.2f} ms")
+            logger.info(f"  P95 latency: {p95_latency:.2f} ms")
+            logger.info(f"  Throughput: {samples_per_sec:.2f} samples/sec")
 
         self.results[dataset_loader.dataset_name] = results
         return results

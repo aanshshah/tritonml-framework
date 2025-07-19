@@ -129,9 +129,8 @@ class TextClassificationModel(TritonModel):
     def _softmax(self, x: np.ndarray) -> np.ndarray:
         """Apply softmax function."""
         exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-        return exp_x / np.sum(
-            exp_x, axis=-1, keepdims=True
-        )  # type: ignore[no-any-return]
+        result: np.ndarray = exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+        return result
 
     def _get_converter(self) -> ModelConverter:
         """Get the ONNX converter for HuggingFace models."""
