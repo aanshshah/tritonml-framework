@@ -51,12 +51,12 @@ class TestHuggingFaceDatasetLoader:
         mock_dataset = MagicMock()
         mock_dataset.__len__.return_value = 100
         mock_dataset.column_names = ["text", "label"]
-        
+
         # Mock the select method to return a dataset with 50 samples
         mock_selected = MagicMock()
         mock_selected.__len__.return_value = 50
         mock_dataset.select.return_value = mock_selected
-        
+
         mock_load_dataset.return_value = mock_dataset
 
         # Load dataset
@@ -137,7 +137,7 @@ class TestBenchmarkRunner:
         mock_dataset.__iter__.return_value = iter(
             [{"text": f"Sample text {i}"} for i in range(100)]
         )
-        
+
         # Make sure select() returns a dataset with the same column_names
         mock_selected = MagicMock()
         mock_selected.column_names = ["text"]
@@ -146,7 +146,7 @@ class TestBenchmarkRunner:
             [{"text": f"Sample text {i}"} for i in range(10)]
         )
         mock_dataset.select.return_value = mock_selected
-        
+
         mock_load_dataset.return_value = mock_dataset
 
         # Create mock model and runner

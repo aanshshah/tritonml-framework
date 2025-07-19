@@ -40,7 +40,9 @@ class TextClassificationModel(TritonModel):
     ) -> "TextClassificationModel":
         """Load a text classification model from HuggingFace."""
         # Load model and tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)  # type: ignore[no-untyped-call]
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name_or_path
+        )  # type: ignore[no-untyped-call]
         model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path)
 
         # Infer labels if not provided
@@ -127,7 +129,9 @@ class TextClassificationModel(TritonModel):
     def _softmax(self, x: np.ndarray) -> np.ndarray:
         """Apply softmax function."""
         exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)  # type: ignore[no-any-return]
+        return exp_x / np.sum(
+            exp_x, axis=-1, keepdims=True
+        )  # type: ignore[no-any-return]
 
     def _get_converter(self) -> ModelConverter:
         """Get the ONNX converter for HuggingFace models."""
@@ -183,7 +187,13 @@ class EmotionClassifier(TextClassificationModel):
         if model_name is None:
             model_name = "emotion-classifier"
 
-        result = super().from_pretrained(model_name_or_path, model_name=model_name, labels=labels, max_sequence_length=max_sequence_length, **kwargs)
+        result = super().from_pretrained(
+            model_name_or_path,
+            model_name=model_name,
+            labels=labels,
+            max_sequence_length=max_sequence_length,
+            **kwargs,
+        )
         return result  # type: ignore[return-value]
 
 
@@ -206,5 +216,11 @@ class SentimentClassifier(TextClassificationModel):
         if model_name is None:
             model_name = "sentiment-classifier"
 
-        result = super().from_pretrained(model_name_or_path, model_name=model_name, labels=labels, max_sequence_length=max_sequence_length, **kwargs)
+        result = super().from_pretrained(
+            model_name_or_path,
+            model_name=model_name,
+            labels=labels,
+            max_sequence_length=max_sequence_length,
+            **kwargs,
+        )
         return result  # type: ignore[return-value]

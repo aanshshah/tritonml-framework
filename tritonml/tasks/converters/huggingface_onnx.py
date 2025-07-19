@@ -55,7 +55,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
         ort_model.save_pretrained(str(output_path))
 
         # Save tokenizer
-        if hasattr(self.tokenizer, 'save_pretrained'):
+        if hasattr(self.tokenizer, "save_pretrained"):
             self.tokenizer.save_pretrained(str(output_path))
 
         # Log model size

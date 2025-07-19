@@ -74,7 +74,9 @@ def deploy_command(
     "--format", "-f", default="onnx", help="Output format (onnx, torchscript, tensorrt)"
 )
 @click.option("--quantize/--no-quantize", default=False, help="Quantize model")
-def convert(model_path: str, output: Optional[str], format: str, quantize: bool) -> None:
+def convert(
+    model_path: str, output: Optional[str], format: str, quantize: bool
+) -> None:
     """Convert a model to deployment format."""
     click.echo(f"Converting model from {model_path} to {format} format...")
 
@@ -155,10 +157,11 @@ def benchmark(
             click.echo(f"\nBenchmarking model {model_name} with dataset {dataset}...")
 
             from ..benchmarks import BenchmarkRunner, HuggingFaceDatasetLoader
-            from ..tasks import TextClassificationModel
 
             # Create model instance connected to deployed model
             from ..core.config import TextClassificationConfig
+            from ..tasks import TextClassificationModel
+
             config = TextClassificationConfig(model_name=model_name)
             model = TextClassificationModel(config)
             model._client = TritonClient(server_url=server, model_name=model_name)

@@ -129,7 +129,9 @@ class BenchmarkRunner:
             logger.info(f"  Mean latency: {mean_lat:.2f} ms")
             p95_lat = float(batch_results["latency_ms"]["p95"])  # type: ignore[index]
             logger.info(f"  P95 latency: {p95_lat:.2f} ms")
-            throughput = float(batch_results["throughput"]["samples_per_second"])  # type: ignore[index]
+            throughput = float(
+                batch_results["throughput"]["samples_per_second"]
+            )  # type: ignore[index]
             logger.info(f"  Throughput: {throughput:.2f} samples/sec")
 
         self.results[dataset_loader.dataset_name] = results

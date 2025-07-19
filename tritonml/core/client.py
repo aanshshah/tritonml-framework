@@ -41,9 +41,11 @@ class TritonClient:
     def is_model_ready(self) -> bool:
         """Check if the model is ready for inference."""
         try:
-            return bool(self._client.is_model_ready(
-                model_name=self.model_name, model_version=self.model_version
-            ))
+            return bool(
+                self._client.is_model_ready(
+                    model_name=self.model_name, model_version=self.model_version
+                )
+            )
         except Exception as e:
             logger.error(f"Model ready check failed: {e}")
             return False
@@ -194,7 +196,7 @@ class TritonClient:
         # Default to FP32
         return "FP32"
 
-    def __enter__(self) -> 'TritonClient':
+    def __enter__(self) -> "TritonClient":
         """Context manager entry."""
         return self
 
