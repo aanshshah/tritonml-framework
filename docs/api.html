@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - TritonML</title>
+    <meta name="description" content="Complete API documentation for TritonML framework">
+    
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/api.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-rocket"></i>
+                    TritonML
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#quickstart">Quick Start</a></li>
+                <li><a href="api.html" class="active">API Docs</a></li>
+                <li><a href="https://github.com/aanshshah/tritonml" class="btn btn-sm">
+                    <i class="fab fa-github"></i> GitHub
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- API Documentation -->
+    <div class="api-container">
+        <!-- Sidebar -->
+        <aside class="api-sidebar">
+            <h3>API Reference</h3>
+            <ul class="api-nav">
+                <li><a href="#core">Core Components</a>
+                    <ul>
+                        <li><a href="#tritonmodel">TritonModel</a></li>
+                        <li><a href="#tritonclient">TritonClient</a></li>
+                        <li><a href="#modelconverter">ModelConverter</a></li>
+                    </ul>
+                </li>
+                <li><a href="#tasks">Task Models</a>
+                    <ul>
+                        <li><a href="#textclassification">TextClassification</a></li>
+                        <li><a href="#emotionclassifier">EmotionClassifier</a></li>
+                    </ul>
+                </li>
+                <li><a href="#utils">Utilities</a>
+                    <ul>
+                        <li><a href="#deploy">deploy()</a></li>
+                        <li><a href="#quickdeploy">quick_deploy()</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="api-content">
+            <h1>API Reference</h1>
+            
+            <!-- Core Components -->
+            <section id="core">
+                <h2>Core Components</h2>
+                
+                <div id="tritonmodel" class="api-section">
+                    <h3>TritonModel</h3>
+                    <p class="api-description">Base class for all Triton-deployable models.</p>
+                    
+                    <div class="api-method">
+                        <h4>Class Methods</h4>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">TritonModel.from_huggingface(model_id: str, task: Optional[str] = None, **kwargs) → TritonModel</code>
+                            <p>Create a model from HuggingFace hub.</p>
+                            <div class="code-example">
+                                <pre><code class="language-python">model = TritonModel.from_huggingface(
+    "bert-base-uncased",
+    task="text-classification"
+)</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">model.convert(output_format: str = "onnx", **kwargs) → Path</code>
+                            <p>Convert the model to deployment format.</p>
+                            <div class="code-example">
+                                <pre><code class="language-python">path = model.convert(
+    output_format="onnx",
+    opset_version=14
+)</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">model.quantize(method: str = "dynamic", **kwargs) → TritonModel</code>
+                            <p>Quantize the model for better performance.</p>
+                            <div class="code-example">
+                                <pre><code class="language-python">model.quantize(
+    method="dynamic",
+    per_channel=True
+)</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">model.deploy(server_url: Optional[str] = None) → TritonClient</code>
+                            <p>Deploy the model to Triton server.</p>
+                            <div class="code-example">
+                                <pre><code class="language-python">client = model.deploy(server_url="localhost:8000")</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">model.predict(inputs: Any) → Any</code>
+                            <p>Run inference on inputs.</p>
+                            <div class="code-example">
+                                <pre><code class="language-python">result = model.predict("Hello world!")
+results = model.predict(["Text 1", "Text 2"])</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="tritonclient" class="api-section">
+                    <h3>TritonClient</h3>
+                    <p class="api-description">Enhanced Triton client with batching and monitoring.</p>
+                    
+                    <div class="api-method">
+                        <h4>Methods</h4>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">client.infer(inputs: Dict[str, np.ndarray], outputs: Optional[List[str]] = None) → Dict[str, np.ndarray]</code>
+                            <p>Run inference with numpy arrays.</p>
+                        </div>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">client.infer_batch(batch_inputs: List[Dict[str, np.ndarray]]) → List[Dict[str, np.ndarray]]</code>
+                            <p>Run batch inference on multiple inputs.</p>
+                        </div>
+                        
+                        <div class="method-item">
+                            <code class="method-signature">client.get_statistics() → Dict[str, Any]</code>
+                            <p>Get inference statistics for the model.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Task Models -->
+            <section id="tasks">
+                <h2>Task-Specific Models</h2>
+                
+                <div id="textclassification" class="api-section">
+                    <h3>TextClassificationModel</h3>
+                    <p class="api-description">Text classification model for sentiment analysis, topic classification, etc.</p>
+                    
+                    <div class="code-example">
+                        <pre><code class="language-python">from tritonml.tasks import TextClassificationModel
+
+model = TextClassificationModel.from_pretrained(
+    "distilbert-base-uncased-finetuned-sst-2-english",
+    labels=["negative", "positive"]
+)
+
+# Deploy and predict
+model.deploy()
+sentiment = model.predict("This movie is fantastic!")
+
+# Get probabilities
+probs = model.predict_proba("Uncertain about this...")</code></pre>
+                    </div>
+                </div>
+                
+                <div id="emotionclassifier" class="api-section">
+                    <h3>EmotionClassifier</h3>
+                    <p class="api-description">Specialized model for emotion detection.</p>
+                    
+                    <div class="code-example">
+                        <pre><code class="language-python">from tritonml.tasks import EmotionClassifier
+
+model = EmotionClassifier.from_pretrained()
+model.deploy()
+
+emotions = model.predict([
+    "I'm furious!",
+    "Best day ever!",
+    "Feeling hopeful",
+    "So sad..."
+])
+# Output: ["anger", "joy", "optimism", "sadness"]</code></pre>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Utilities -->
+            <section id="utils">
+                <h2>Utility Functions</h2>
+                
+                <div id="deploy" class="api-section">
+                    <h3>deploy()</h3>
+                    <p class="api-description">One-line deployment function with automatic optimization.</p>
+                    
+                    <div class="code-example">
+                        <pre><code class="language-python">from tritonml import deploy
+
+# Deploy any HuggingFace model
+client = deploy(
+    "cardiffnlp/twitter-roberta-base-emotion",
+    server_url="localhost:8000",
+    quantize=True,
+    optimize=True
+)</code></pre>
+                    </div>
+                </div>
+                
+                <div id="quickdeploy" class="api-section">
+                    <h3>quick_deploy()</h3>
+                    <p class="api-description">Quick deployment with minimal configuration.</p>
+                    
+                    <div class="code-example">
+                        <pre><code class="language-python">from tritonml.utils import quick_deploy
+
+deployment = quick_deploy(
+    model_name="bert-base-uncased",
+    task="text-classification",
+    server_url="localhost:8000"
+)
+
+# Returns deployment info
+print(deployment["model_name"])
+print(deployment["model_path"])
+client = deployment["client"]</code></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

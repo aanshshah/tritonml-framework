@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00D4AA;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#gradient)" />
+  
+  <!-- Rocket icon (simplified) -->
+  <g transform="translate(50, 50)">
+    <!-- Rocket body -->
+    <path d="M 0 -25 L -10 5 L -5 10 L 0 5 L 5 10 L 10 5 Z" 
+          fill="white" 
+          stroke="none" />
+    
+    <!-- Rocket flames -->
+    <path d="M -5 10 L -3 20 L 0 15 L 3 20 L 5 10" 
+          fill="white" 
+          opacity="0.8"
+          stroke="none" />
+    
+    <!-- Window -->
+    <circle cx="0" cy="-10" r="4" fill="#0066FF" />
+  </g>
+</svg>

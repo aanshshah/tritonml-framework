@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TritonML - Deploy ML Models to Production in Minutes</title>
+    <meta name="description" content="TritonML is a powerful framework for deploying machine learning models to NVIDIA Triton Inference Server with automatic optimization and simple APIs.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Prism for code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="#" class="logo">
+                    <i class="fas fa-rocket"></i>
+                    TritonML
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#quickstart">Quick Start</a></li>
+                <li><a href="#comparison">Comparison</a></li>
+                <li><a href="#docs">Docs</a></li>
+                <li><a href="https://github.com/aanshshah/tritonml" class="btn btn-sm">
+                    <i class="fab fa-github"></i> GitHub
+                </a></li>
+            </ul>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Deploy ML Models to Production
+                    <span class="text-gradient">in Minutes</span>
+                </h1>
+                <p class="hero-subtitle">
+                    TritonML is a powerful framework for deploying machine learning models to NVIDIA Triton Inference Server 
+                    with automatic optimization, quantization, and dead-simple APIs.
+                </p>
+                <div class="hero-actions">
+                    <a href="#quickstart" class="btn btn-primary btn-lg">
+                        Get Started
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a href="https://github.com/aanshshah/tritonml" class="btn btn-secondary btn-lg">
+                        <i class="fab fa-github"></i>
+                        View on GitHub
+                    </a>
+                </div>
+                
+                <!-- Quick Install -->
+                <div class="quick-install">
+                    <div class="code-block">
+                        <span class="code-label">Quick Install</span>
+                        <pre><code class="language-bash">pip install tritonml</code></pre>
+                        <button class="copy-btn" data-clipboard-text="pip install tritonml">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hero Code Example -->
+            <div class="hero-code">
+                <div class="code-window">
+                    <div class="code-header">
+                        <span class="code-title">deploy_model.py</span>
+                        <div class="code-actions">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                    </div>
+                    <pre><code class="language-python">from tritonml import deploy
+
+# Deploy any HuggingFace model with one line
+client = deploy("cardiffnlp/twitter-roberta-base-emotion")
+
+# Make predictions instantly
+emotion = client.predict("I love this framework!")
+print(emotion)  # Output: "joy"</code></pre>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-value">4x</div>
+                        <div class="stat-label">Model Compression</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Lines to Deploy</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2-4x</div>
+                        <div class="stat-label">Faster Inference</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why TritonML?</h2>
+                <p>Everything you need to deploy ML models to production</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Lightning Fast</h3>
+                    <p>Automatic quantization and optimization delivers 2-4x faster inference with 4x model compression.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Simple API</h3>
+                    <p>Deploy any model in 3 lines of code. No complex configurations or Kubernetes knowledge required.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3>Auto-Optimization</h3>
+                    <p>Built-in ONNX conversion, INT8 quantization, and graph optimization - all automatic.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-puzzle-piece"></i>
+                    </div>
+                    <h3>Framework Agnostic</h3>
+                    <p>Works with PyTorch, TensorFlow, HuggingFace, and any ONNX-compatible model.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h3>CLI Tools</h3>
+                    <p>Powerful command-line tools for deployment, testing, and benchmarking your models.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fab fa-docker"></i>
+                    </div>
+                    <h3>Docker Ready</h3>
+                    <p>Generate production-ready Docker images and docker-compose files automatically.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section id="quickstart" class="quickstart">
+        <div class="container">
+            <div class="section-header">
+                <h2>Quick Start</h2>
+                <p>Get up and running in minutes</p>
+            </div>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Install TritonML</h3>
+                        <pre><code class="language-bash">pip install tritonml</code></pre>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Deploy Your Model</h3>
+                        <pre><code class="language-python">from tritonml import TritonModel
+
+# Load any HuggingFace model
+model = TritonModel.from_huggingface(
+    "bert-base-uncased",
+    task="text-classification"
+)
+
+# Optimize and deploy
+model.quantize()  # 4x compression
+client = model.deploy()</code></pre>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Make Predictions</h3>
+                        <pre><code class="language-python"># Single prediction
+result = model.predict("This movie is amazing!")
+
+# Batch predictions
+texts = ["Great product!", "Terrible service"]
+results = model.predict(texts)
+
+# Get probabilities
+probs = model.predict_proba(texts)</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Advanced Examples -->
+            <div class="examples-section">
+                <h3>More Examples</h3>
+                <div class="example-tabs">
+                    <button class="tab-btn active" data-tab="emotion">Emotion Detection</button>
+                    <button class="tab-btn" data-tab="cli">CLI Usage</button>
+                    <button class="tab-btn" data-tab="docker">Docker Deploy</button>
+                    <button class="tab-btn" data-tab="benchmark">Benchmarking</button>
+                </div>
+                
+                <div class="tab-content active" id="emotion">
+                    <pre><code class="language-python">from tritonml.tasks import EmotionClassifier
+
+# Specialized emotion detection model
+model = EmotionClassifier.from_pretrained()
+model.deploy()
+
+# Analyze emotions
+texts = [
+    "I'm so angry about this!",
+    "This is the best day ever!",
+    "Things will get better soon.",
+    "I feel so sad and lonely."
+]
+
+emotions = model.predict(texts)
+for text, emotion in zip(texts, emotions):
+    print(f"'{text}' → {emotion}")</code></pre>
+                </div>
+                
+                <div class="tab-content" id="cli">
+                    <pre><code class="language-bash"># Deploy a model from CLI
+tritonml deploy bert-base-uncased --task text-classification
+
+# Make predictions
+tritonml predict my-model "Hello world!" --server localhost:8000
+
+# List deployed models
+tritonml model list --server localhost:8000
+
+# Benchmark performance
+tritonml benchmark my-model --batch-sizes 1,8,16,32</code></pre>
+                </div>
+                
+                <div class="tab-content" id="docker">
+                    <pre><code class="language-python">from tritonml.deploy.docker import create_deployment_package
+
+# Generate complete Docker deployment
+create_deployment_package(
+    model_name="emotion-classifier",
+    output_path="./deploy"
+)
+
+# This creates:
+# - Dockerfile
+# - docker-compose.yml
+# - client_example.py
+# - README.md</code></pre>
+                </div>
+                
+                <div class="tab-content" id="benchmark">
+                    <pre><code class="language-python"># Benchmark your model
+results = model.benchmark(
+    test_inputs=["sample"] * 100,
+    batch_sizes=[1, 8, 16, 32]
+)
+
+# Results:
+# batch_1: 12.5ms latency, 80 samples/sec
+# batch_8: 15.2ms latency, 526 samples/sec  
+# batch_16: 18.7ms latency, 855 samples/sec
+# batch_32: 25.3ms latency, 1264 samples/sec</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section id="comparison" class="comparison">
+        <div class="container">
+            <div class="section-header">
+                <h2>How Does TritonML Compare?</h2>
+                <p>See how we stack up against other deployment solutions</p>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="highlight">TritonML</th>
+                            <th>BentoML</th>
+                            <th>Seldon Core</th>
+                            <th>KServe</th>
+                            <th>Raw Triton</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Triton-Optimized</td>
+                            <td class="highlight"><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Simple API</td>
+                            <td class="highlight"><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Auto-Optimization</td>
+                            <td class="highlight"><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                        </tr>
+                        <tr>
+                            <td>No K8s Required</td>
+                            <td class="highlight"><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Task Templates</td>
+                            <td class="highlight"><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Free & Open Source</td>
+                            <td class="highlight"><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                            <td>$18k/year</td>
+                            <td><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="comparison-summary">
+                <p>
+                    <strong>TritonML</strong> combines the best of both worlds: the simplicity of BentoML with the 
+                    performance of NVIDIA Triton Server, plus automatic optimizations that no other framework provides.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Section -->
+    <section id="docs" class="documentation">
+        <div class="container">
+            <div class="section-header">
+                <h2>Documentation</h2>
+                <p>Everything you need to know</p>
+            </div>
+            
+            <div class="docs-grid">
+                <a href="https://github.com/aanshshah/tritonml/blob/main/README.md" class="doc-card">
+                    <i class="fas fa-book"></i>
+                    <h3>Getting Started</h3>
+                    <p>Installation, basic usage, and your first deployment</p>
+                </a>
+                
+                <a href="https://github.com/aanshshah/tritonml/blob/main/docs/api.md" class="doc-card">
+                    <i class="fas fa-code"></i>
+                    <h3>API Reference</h3>
+                    <p>Complete API documentation for all classes and methods</p>
+                </a>
+                
+                <a href="https://github.com/aanshshah/tritonml/tree/main/examples" class="doc-card">
+                    <i class="fas fa-lightbulb"></i>
+                    <h3>Examples</h3>
+                    <p>Real-world examples and use cases</p>
+                </a>
+                
+                <a href="https://github.com/aanshshah/tritonml/blob/main/MIGRATION_GUIDE.md" class="doc-card">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h3>Migration Guide</h3>
+                    <p>Migrating from other frameworks to TritonML</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Deploy Your Models?</h2>
+            <p>Join developers who are shipping ML models faster with TritonML</p>
+            <div class="cta-actions">
+                <a href="https://github.com/aanshshah/tritonml" class="btn btn-primary btn-lg">
+                    <i class="fab fa-github"></i>
+                    Get Started on GitHub
+                </a>
+                <a href="#quickstart" class="btn btn-secondary btn-lg">
+                    Read the Docs
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <i class="fas fa-rocket"></i>
+                        TritonML
+                    </div>
+                    <p>Deploy ML models to production in minutes</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://github.com/aanshshah/tritonml">GitHub</a></li>
+                        <li><a href="https://github.com/aanshshah/tritonml/blob/main/README.md">Documentation</a></li>
+                        <li><a href="https://github.com/aanshshah/tritonml/tree/main/examples">Examples</a></li>
+                        <li><a href="https://github.com/aanshshah/tritonml/issues">Issues</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="https://github.com/aanshshah/tritonml/discussions">Discussions</a></li>
+                        <li><a href="https://github.com/aanshshah/tritonml/blob/main/CONTRIBUTING.md">Contributing</a></li>
+                        <li><a href="https://github.com/aanshshah/tritonml/blob/main/LICENSE">License</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 TritonML. Released under the MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
