@@ -1,12 +1,13 @@
 """Tests for TritonML core components."""
 
-import pytest
-# from pathlib import Path  # Unused import
-import numpy as np
 from unittest.mock import Mock, patch
 
-from tritonml.core.config import TritonConfig, TextClassificationConfig
+# from pathlib import Path  # Unused import
+import numpy as np
+import pytest
+
 from tritonml.core.client import TritonClient
+from tritonml.core.config import TextClassificationConfig, TritonConfig
 from tritonml.core.model import TritonModel
 
 
@@ -18,7 +19,7 @@ class TestTritonConfig:
         config = TritonConfig(
             model_name="test-model",
             input_shapes={"input": [10]},
-            output_shapes={"output": [5]}
+            output_shapes={"output": [5]},
         )
 
         assert config.model_name == "test-model"
@@ -30,7 +31,7 @@ class TestTritonConfig:
         config = TritonConfig(
             model_name="test-model",
             input_shapes={"input_ids": [128]},
-            output_shapes={"logits": [4]}
+            output_shapes={"logits": [4]},
         )
 
         pbtxt = config.to_pbtxt()
@@ -45,7 +46,7 @@ class TestTritonConfig:
         config = TextClassificationConfig(
             model_name="emotion-classifier",
             labels=["anger", "joy", "optimism", "sadness"],
-            max_sequence_length=128
+            max_sequence_length=128,
         )
 
         assert len(config.labels) == 4
@@ -62,10 +63,7 @@ class TestTritonClient:
         mock_client = Mock()
         mock_client_class.return_value = mock_client
 
-        client = TritonClient(
-            server_url="localhost:8000",
-            model_name="test-model"
-        )
+        client = TritonClient(server_url="localhost:8000", model_name="test-model")
 
         assert client.server_url == "localhost:8000"
         assert client.model_name == "test-model"
@@ -82,8 +80,7 @@ class TestTritonClient:
         assert client.is_model_ready() is True
 
         mock_client.is_model_ready.assert_called_with(
-            model_name="test-model",
-            model_version="1"
+            model_name="test-model", model_version="1"
         )
 
     @patch("tritonclient.http.InferenceServerClient")
@@ -96,7 +93,7 @@ class TestTritonClient:
 
         inputs = {
             "input_ids": np.array([[1, 2, 3]], dtype=np.int64),
-            "attention_mask": np.array([[1, 1, 1]], dtype=np.int64)
+            "attention_mask": np.array([[1, 1, 1]], dtype=np.int64),
         }
 
         with patch("tritonclient.http.InferInput") as mock_input:
@@ -136,8 +133,7 @@ class TestTritonModel:
         mock_get_task.return_value = mock_model_class
 
         TritonModel.from_huggingface(
-            "cardiffnlp/twitter-roberta-base-emotion",
-            task="text-classification"
+            "cardiffnlp/twitter-roberta-base-emotion", task="text-classification"
         )
 
         mock_get_task.assert_called_with("text-classification")

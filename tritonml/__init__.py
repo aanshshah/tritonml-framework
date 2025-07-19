@@ -2,12 +2,12 @@
 
 __version__ = "0.1.0"
 
-from .core.model import TritonModel
+from .benchmarks import BenchmarkRunner, HuggingFaceDatasetLoader
 from .core.client import TritonClient
 from .core.converter import ModelConverter
-from .tasks import TextClassificationModel, ImageClassificationModel
+from .core.model import TritonModel
+from .tasks import ImageClassificationModel, TextClassificationModel
 from .utils.deploy import deploy
-from .benchmarks import HuggingFaceDatasetLoader, BenchmarkRunner
 
 __all__ = [
     "TritonModel",

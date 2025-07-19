@@ -1,12 +1,13 @@
 """Benchmark runner for TritonML models with Hugging Face datasets."""
 
-import time
 import json
 import logging
-from typing import Dict, List, Optional, Any, Union
-from pathlib import Path
-import numpy as np
+import time
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import numpy as np
 
 from ..core.model import TritonModel
 from .dataset_loader import HuggingFaceDatasetLoader
@@ -29,12 +30,12 @@ class BenchmarkRunner:
         self.results = {}
 
     def benchmark_dataset(
-            self,
-            dataset_loader: HuggingFaceDatasetLoader,
-            batch_sizes: List[int] = [1, 8, 16, 32],
-            num_samples: Optional[int] = 1000,
-            text_column: Optional[str] = None,
-            runs_per_batch: int = 10
+        self,
+        dataset_loader: HuggingFaceDatasetLoader,
+        batch_sizes: List[int] = [1, 8, 16, 32],
+        num_samples: Optional[int] = 1000,
+        text_column: Optional[str] = None,
+        runs_per_batch: int = 10,
     ) -> Dict[str, Any]:
         """Benchmark model on a Hugging Face dataset.
 
@@ -52,9 +53,7 @@ class BenchmarkRunner:
         dataset_loader.load(max_samples=num_samples)
         samples = dataset_loader.get_samples(text_column=text_column)
 
-        logger.info(
-            f"Starting benchmark on dataset: {dataset_loader.dataset_name}"
-        )
+        logger.info(f"Starting benchmark on dataset: {dataset_loader.dataset_name}")
         logger.info(f"Total samples: {len(samples)}")
 
         results = {
@@ -63,7 +62,7 @@ class BenchmarkRunner:
             "num_samples": len(samples),
             "timestamp": datetime.now().isoformat(),
             "model_name": self.model.config.model_name,
-            "batch_results": {}
+            "batch_results": {},
         }
 
         for batch_size in batch_sizes:
@@ -72,14 +71,12 @@ class BenchmarkRunner:
             # Prepare batches
             batches = []
             for i in range(0, len(samples), batch_size):
-                batch = samples[i:i + batch_size]
+                batch = samples[i : i + batch_size]
                 if len(batch) == batch_size:  # Only full batches
                     batches.append(batch)
 
             if not batches:
-                logger.warning(
-                    f"Not enough samples for batch size {batch_size}"
-                )
+                logger.warning(f"Not enough samples for batch size {batch_size}")
                 continue
 
             # Warmup
@@ -116,34 +113,30 @@ class BenchmarkRunner:
                     "p50": float(np.percentile(latencies_array, 50)),
                     "p90": float(np.percentile(latencies_array, 90)),
                     "p95": float(np.percentile(latencies_array, 95)),
-                    "p99": float(np.percentile(latencies_array, 99))
+                    "p99": float(np.percentile(latencies_array, 99)),
                 },
                 "throughput": {
                     "samples_per_second": float(
                         batch_size / (np.mean(latencies_array) / 1000)
                     ),
-                    "batches_per_second": float(
-                        1000 / np.mean(latencies_array)
-                    )
-                }
+                    "batches_per_second": float(1000 / np.mean(latencies_array)),
+                },
             }
 
             results["batch_results"][f"batch_{batch_size}"] = batch_results
 
-            mean_lat = batch_results['latency_ms']['mean']
+            mean_lat = batch_results["latency_ms"]["mean"]
             logger.info(f"  Mean latency: {mean_lat:.2f} ms")
-            p95_lat = batch_results['latency_ms']['p95']
+            p95_lat = batch_results["latency_ms"]["p95"]
             logger.info(f"  P95 latency: {p95_lat:.2f} ms")
-            throughput = batch_results['throughput']['samples_per_second']
+            throughput = batch_results["throughput"]["samples_per_second"]
             logger.info(f"  Throughput: {throughput:.2f} samples/sec")
 
         self.results[dataset_loader.dataset_name] = results
         return results
 
     def benchmark_multiple_datasets(
-            self,
-            dataset_configs: List[Dict[str, Any]],
-            **kwargs
+        self, dataset_configs: List[Dict[str, Any]], **kwargs
     ) -> Dict[str, Any]:
         """Benchmark model on multiple datasets.
 
@@ -164,7 +157,7 @@ class BenchmarkRunner:
             loader = HuggingFaceDatasetLoader(
                 dataset_name=dataset_name,
                 split=config.get("split", "test"),
-                config_name=config.get("config_name")
+                config_name=config.get("config_name"),
             )
 
             # Set preprocessor if provided
@@ -184,9 +177,7 @@ class BenchmarkRunner:
 
         return all_results
 
-    def save_results(
-            self, output_path: Union[str, Path], format: str = "json"
-    ) -> None:
+    def save_results(self, output_path: Union[str, Path], format: str = "json") -> None:
         """Save benchmark results to file.
 
         Args:
@@ -218,7 +209,7 @@ class BenchmarkRunner:
                         "p95_latency_ms": batch_results["latency_ms"]["p95"],
                         "throughput_samples_sec": (
                             batch_results["throughput"]["samples_per_second"]
-                        )
+                        ),
                     }
                     rows.append(row)
 
@@ -234,9 +225,9 @@ class BenchmarkRunner:
 
     def print_summary(self):
         """Print a summary of benchmark results."""
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("BENCHMARK SUMMARY")
-        print("="*80)
+        print("=" * 80)
 
         for dataset_name, results in self.results.items():
             print(f"\nDataset: {dataset_name}")
@@ -247,9 +238,11 @@ class BenchmarkRunner:
 
             print(f"  Model: {results['model_name']}")
             print(f"  Samples: {results['num_samples']}")
-            print(f"\n  {'Batch Size':<12} {'Mean Latency':<15} "
-                  f"{'P95 Latency':<15} {'Throughput':<20}")
-            print("  " + "-"*62)
+            print(
+                f"\n  {'Batch Size':<12} {'Mean Latency':<15} "
+                f"{'P95 Latency':<15} {'Throughput':<20}"
+            )
+            print("  " + "-" * 62)
 
             batch_results_dict = results.get("batch_results", {})
             for batch_key, batch_results in sorted(batch_results_dict.items()):
@@ -258,7 +251,9 @@ class BenchmarkRunner:
                 p95_latency = batch_results["latency_ms"]["p95"]
                 throughput = batch_results["throughput"]["samples_per_second"]
 
-                print(f"  {batch_size:<12} {mean_latency:<15.2f} "
-                      f"{p95_latency:<15.2f} {throughput:<20.2f}")
+                print(
+                    f"  {batch_size:<12} {mean_latency:<15.2f} "
+                    f"{p95_latency:<15.2f} {throughput:<20.2f}"
+                )
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)

@@ -2,8 +2,8 @@
 
 import os
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -16,9 +16,7 @@ class TritonConfig:
 
     # Server configuration
     triton_server_url: str = field(
-        default_factory=lambda: os.environ.get(
-            "TRITON_SERVER_URL", "localhost:8000"
-        )
+        default_factory=lambda: os.environ.get("TRITON_SERVER_URL", "localhost:8000")
     )
 
     # Model settings
@@ -45,9 +43,7 @@ class TritonConfig:
     @property
     def model_path(self) -> Path:
         """Get the full model path in the repository."""
-        return (
-            self.model_repository_path / self.model_name / self.model_version
-        )
+        return self.model_repository_path / self.model_name / self.model_version
 
     @property
     def config_path(self) -> Path:
@@ -58,7 +54,7 @@ class TritonConfig:
         """Convert configuration to Triton's config.pbtxt format."""
         config_lines = [
             f'name: "{self.model_name}"',
-            f'max_batch_size: {self.max_batch_size}',
+            f"max_batch_size: {self.max_batch_size}",
         ]
 
         # Add input configuration
@@ -67,8 +63,8 @@ class TritonConfig:
             config_lines.append("  {")
             config_lines.append(f'    name: "{input_name}"')
             dtype = self.model_config.get(f"{input_name}_dtype", "TYPE_INT64")
-            config_lines.append(f'    data_type: {dtype}')
-            config_lines.append(f'    dims: {shape}')
+            config_lines.append(f"    data_type: {dtype}")
+            config_lines.append(f"    dims: {shape}")
             config_lines.append("  }")
             config_lines.append("]")
 
@@ -78,8 +74,8 @@ class TritonConfig:
             config_lines.append("  {")
             config_lines.append(f'    name: "{output_name}"')
             dtype = self.model_config.get(f"{output_name}_dtype", "TYPE_FP32")
-            config_lines.append(f'    data_type: {dtype}')
-            config_lines.append(f'    dims: {shape}')
+            config_lines.append(f"    data_type: {dtype}")
+            config_lines.append(f"    dims: {shape}")
             config_lines.append("  }")
             config_lines.append("]")
 
@@ -89,9 +85,9 @@ class TritonConfig:
             config_lines.append("  {")
             for key, value in self.instance_group.items():
                 if isinstance(value, str):
-                    config_lines.append(f'    {key}: {value}')
+                    config_lines.append(f"    {key}: {value}")
                 else:
-                    config_lines.append(f'    {key}: {value}')
+                    config_lines.append(f"    {key}: {value}")
             config_lines.append("  }")
             config_lines.append("]")
 
@@ -99,7 +95,7 @@ class TritonConfig:
         if self.dynamic_batching:
             config_lines.append("dynamic_batching {")
             for key, value in self.dynamic_batching.items():
-                config_lines.append(f'  {key}: {value}')
+                config_lines.append(f"  {key}: {value}")
             config_lines.append("}")
 
         return "\n".join(config_lines)
@@ -124,9 +120,7 @@ class TextClassificationConfig(TritonConfig):
         if not self.input_shapes:
             self.input_shapes = {
                 "input_ids": [self.max_sequence_length],
-                "attention_mask": [self.max_sequence_length]
+                "attention_mask": [self.max_sequence_length],
             }
         if not self.output_shapes:
-            self.output_shapes = {
-                "logits": [len(self.labels)] if self.labels else [-1]
-            }
+            self.output_shapes = {"logits": [len(self.labels)] if self.labels else [-1]}

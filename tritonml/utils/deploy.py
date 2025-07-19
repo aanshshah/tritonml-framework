@@ -1,11 +1,11 @@
 """Deployment utilities for TritonML models."""
 
-from typing import Union, Dict, Any
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Any, Dict, Union
 
-from ..core.model import TritonModel
 from ..core.client import TritonClient
+from ..core.model import TritonModel
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ def deploy(
     server_url: str = "localhost:8000",
     quantize: bool = True,
     optimize: bool = True,
-    **kwargs
+    **kwargs,
 ) -> TritonClient:
     """Deploy a model to Triton server with optional optimizations."""
 
@@ -23,6 +23,7 @@ def deploy(
     if isinstance(model, str):
         # Auto-detect and load model
         from ..core.model import TritonModel as BaseModel
+
         model = BaseModel.from_huggingface(model, **kwargs)
 
     logger.info(f"Deploying model {model.config.model_name} to {server_url}")
@@ -52,7 +53,7 @@ def quick_deploy(
     model_name: str,
     task: str = "text-classification",
     server_url: str = "localhost:8000",
-    **kwargs
+    **kwargs,
 ) -> Dict[str, Any]:
     """Quick deployment with minimal configuration."""
 
@@ -73,7 +74,7 @@ def quick_deploy(
         "server_url": server_url,
         "model_path": str(model.config.model_path),
         "client": client,
-        "model": model
+        "model": model,
     }
 
 
@@ -93,8 +94,5 @@ def deploy_from_config(config_path: Union[str, Path]) -> TritonClient:
     model_config = config.get("model_config", {})
 
     return quick_deploy(
-        model_name=model_name,
-        task=task,
-        server_url=server_url,
-        **model_config
+        model_name=model_name, task=task, server_url=server_url, **model_config
     )["client"]

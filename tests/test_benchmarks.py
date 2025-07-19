@@ -1,12 +1,14 @@
 """Tests for TritonML benchmarking functionality."""
 
 # import pytest  # Unused import
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+from tritonml.benchmarks import BenchmarkRunner, HuggingFaceDatasetLoader
+from tritonml.core.config import ModelConfig
+from tritonml.core.model import TritonModel
+
 # import numpy as np  # Unused import
 
-from tritonml.benchmarks import HuggingFaceDatasetLoader, BenchmarkRunner
-from tritonml.core.model import TritonModel
-from tritonml.core.config import ModelConfig
 
 
 class MockModel(TritonModel):
@@ -26,6 +28,7 @@ class MockModel(TritonModel):
     def predict(self, inputs):
         # Simulate prediction with small delay
         import time
+
         time.sleep(0.001)  # 1ms delay
         return ["positive"] * len(inputs)
 
@@ -33,7 +36,7 @@ class MockModel(TritonModel):
 class TestHuggingFaceDatasetLoader:
     """Test the HuggingFace dataset loader."""
 
-    @patch('tritonml.benchmarks.dataset_loader.load_dataset')
+    @patch("tritonml.benchmarks.dataset_loader.load_dataset")
     def test_load_dataset(self, mock_load_dataset):
         """Test loading a dataset."""
         # Mock dataset
@@ -50,18 +53,20 @@ class TestHuggingFaceDatasetLoader:
         mock_load_dataset.assert_called_once_with("imdb", None, split="test")
         assert len(dataset) == 50  # Should be limited
 
-    @patch('tritonml.benchmarks.dataset_loader.load_dataset')
+    @patch("tritonml.benchmarks.dataset_loader.load_dataset")
     def test_get_samples_auto_detect(self, mock_load_dataset):
         """Test auto-detection of text column."""
         # Mock dataset with samples
         mock_dataset = MagicMock()
         mock_dataset.column_names = ["text", "label"]
         mock_dataset.__len__.return_value = 3
-        mock_dataset.__iter__.return_value = iter([
-            {"text": "Sample 1", "label": 0},
-            {"text": "Sample 2", "label": 1},
-            {"text": "Sample 3", "label": 0}
-        ])
+        mock_dataset.__iter__.return_value = iter(
+            [
+                {"text": "Sample 1", "label": 0},
+                {"text": "Sample 2", "label": 1},
+                {"text": "Sample 3", "label": 0},
+            ]
+        )
         mock_load_dataset.return_value = mock_dataset
 
         # Load and get samples
@@ -72,16 +77,16 @@ class TestHuggingFaceDatasetLoader:
         # Verify
         assert samples == ["Sample 1", "Sample 2", "Sample 3"]
 
-    @patch('tritonml.benchmarks.dataset_loader.load_dataset')
+    @patch("tritonml.benchmarks.dataset_loader.load_dataset")
     def test_get_samples_with_batching(self, mock_load_dataset):
         """Test getting samples in batches."""
         # Mock dataset
         mock_dataset = MagicMock()
         mock_dataset.column_names = ["text"]
         mock_dataset.__len__.return_value = 10
-        mock_dataset.__iter__.return_value = iter([
-            {"text": f"Sample {i}"} for i in range(10)
-        ])
+        mock_dataset.__iter__.return_value = iter(
+            [{"text": f"Sample {i}"} for i in range(10)]
+        )
         mock_load_dataset.return_value = mock_dataset
 
         # Load and get batched samples
@@ -107,16 +112,16 @@ class TestHuggingFaceDatasetLoader:
 class TestBenchmarkRunner:
     """Test the benchmark runner."""
 
-    @patch('tritonml.benchmarks.dataset_loader.load_dataset')
+    @patch("tritonml.benchmarks.dataset_loader.load_dataset")
     def test_benchmark_dataset(self, mock_load_dataset):
         """Test running benchmark on a dataset."""
         # Mock dataset
         mock_dataset = MagicMock()
         mock_dataset.column_names = ["text"]
         mock_dataset.__len__.return_value = 100
-        mock_dataset.__iter__.return_value = iter([
-            {"text": f"Sample text {i}"} for i in range(100)
-        ])
+        mock_dataset.__iter__.return_value = iter(
+            [{"text": f"Sample text {i}"} for i in range(100)]
+        )
         mock_load_dataset.return_value = mock_dataset
 
         # Create mock model and runner
@@ -128,10 +133,7 @@ class TestBenchmarkRunner:
 
         # Run benchmark
         results = runner.benchmark_dataset(
-            loader,
-            batch_sizes=[1, 2],
-            num_samples=10,
-            runs_per_batch=2
+            loader, batch_sizes=[1, 2], num_samples=10, runs_per_batch=2
         )
 
         # Verify results structure
@@ -162,9 +164,9 @@ class TestBenchmarkRunner:
                     "batch_1": {
                         "batch_size": 1,
                         "latency_ms": {"mean": 10.5, "p95": 12.0},
-                        "throughput": {"samples_per_second": 95.2}
+                        "throughput": {"samples_per_second": 95.2},
                     }
-                }
+                },
             }
         }
 
@@ -175,6 +177,7 @@ class TestBenchmarkRunner:
         # Verify file exists and content
         assert output_file.exists()
         import json
+
         with open(output_file) as f:
             loaded = json.load(f)
         assert "test_dataset" in loaded
@@ -194,9 +197,9 @@ class TestBenchmarkRunner:
                     "batch_1": {
                         "batch_size": 1,
                         "latency_ms": {"mean": 10.5, "p95": 12.0},
-                        "throughput": {"samples_per_second": 95.2}
+                        "throughput": {"samples_per_second": 95.2},
                     }
-                }
+                },
             }
         }
 
@@ -207,6 +210,7 @@ class TestBenchmarkRunner:
         # Verify file exists and content
         assert output_file.exists()
         import csv
+
         with open(output_file) as f:
             reader = csv.DictReader(f)
             rows = list(reader)

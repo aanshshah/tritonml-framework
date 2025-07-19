@@ -1,11 +1,14 @@
 """Main CLI entry point for TritonML."""
 
-import click
 import logging
+
 # from pathlib import Path  # Unused import
 from typing import Optional
 
+import click
+
 from ..utils import quick_deploy
+
 # from ..tasks import list_tasks  # Imported later when needed
 
 logging.basicConfig(level=logging.INFO)
@@ -22,18 +25,24 @@ def cli():
 @cli.command(name="deploy")
 @click.argument("model_name")
 @click.option("--task", "-t", help="Model task type", default=None)
-@click.option("--server", "-s", default="localhost:8000",
-              help="Triton server URL")
+@click.option("--server", "-s", default="localhost:8000", help="Triton server URL")
 @click.option("--name", "-n", help="Deployment name", default=None)
 @click.option("--quantize/--no-quantize", default=True, help="Quantize model")
 @click.option("--optimize/--no-optimize", default=True, help="Optimize model")
-def deploy_command(model_name: str, task: Optional[str], server: str,
-                   name: Optional[str], quantize: bool, optimize: bool):
+def deploy_command(
+    model_name: str,
+    task: Optional[str],
+    server: str,
+    name: Optional[str],
+    quantize: bool,
+    optimize: bool,
+):
     """Deploy a model to Triton server."""
     try:
         if task is None:
             # Try to auto-detect
             from ..core.model import TritonModel
+
             task = TritonModel._detect_task(model_name)
             click.echo(f"Auto-detected task: {task}")
 
@@ -42,7 +51,7 @@ def deploy_command(model_name: str, task: Optional[str], server: str,
             "task": task,
             "server_url": server,
             "quantize": quantize,
-            "optimize": optimize
+            "optimize": optimize,
         }
         if name:
             deployment_args["model_name"] = name
@@ -61,11 +70,11 @@ def deploy_command(model_name: str, task: Optional[str], server: str,
 @cli.command()
 @click.argument("model_path", type=click.Path(exists=True))
 @click.option("--output", "-o", help="Output path for converted model")
-@click.option("--format", "-f", default="onnx",
-              help="Output format (onnx, torchscript, tensorrt)")
+@click.option(
+    "--format", "-f", default="onnx", help="Output format (onnx, torchscript, tensorrt)"
+)
 @click.option("--quantize/--no-quantize", default=False, help="Quantize model")
-def convert(model_path: str, output: Optional[str], format: str,
-            quantize: bool):
+def convert(model_path: str, output: Optional[str], format: str, quantize: bool):
     """Convert a model to deployment format."""
     click.echo(f"Converting model from {model_path} to {format} format...")
 
@@ -76,8 +85,7 @@ def convert(model_path: str, output: Optional[str], format: str,
 @cli.command()
 @click.argument("model_name")
 @click.argument("text")
-@click.option("--server", "-s", default="localhost:8000",
-              help="Triton server URL")
+@click.option("--server", "-s", default="localhost:8000", help="Triton server URL")
 def predict(model_name: str, text: str, server: str):
     """Run inference on deployed model."""
     try:
@@ -122,17 +130,19 @@ def list_tasks():
 
 @cli.command()
 @click.argument("model_name")
-@click.option("--batch-sizes", "-b", default="1,8,16,32",
-              help="Batch sizes to test")
-@click.option("--server", "-s", default="localhost:8000",
-              help="Triton server URL")
-@click.option("--dataset", "-d",
-              help="Hugging Face dataset name for benchmarking")
-@click.option("--num-samples", "-n", default=1000,
-              help="Number of samples to use")
+@click.option("--batch-sizes", "-b", default="1,8,16,32", help="Batch sizes to test")
+@click.option("--server", "-s", default="localhost:8000", help="Triton server URL")
+@click.option("--dataset", "-d", help="Hugging Face dataset name for benchmarking")
+@click.option("--num-samples", "-n", default=1000, help="Number of samples to use")
 @click.option("--output", "-o", help="Output file for results (JSON or CSV)")
-def benchmark(model_name: str, batch_sizes: str, server: str, dataset: str,
-              num_samples: int, output: str):
+def benchmark(
+    model_name: str,
+    batch_sizes: str,
+    server: str,
+    dataset: str,
+    num_samples: int,
+    output: str,
+):
     """Benchmark a deployed model."""
     try:
         from ..core.client import TritonClient
@@ -142,29 +152,21 @@ def benchmark(model_name: str, batch_sizes: str, server: str, dataset: str,
 
         if dataset:
             # Use Hugging Face dataset benchmarking
-            click.echo(
-                f"\nBenchmarking model {model_name} with dataset {dataset}..."
-            )
+            click.echo(f"\nBenchmarking model {model_name} with dataset {dataset}...")
 
-            from ..benchmarks import HuggingFaceDatasetLoader, BenchmarkRunner
+            from ..benchmarks import BenchmarkRunner, HuggingFaceDatasetLoader
             from ..tasks import TextClassificationModel
 
             # Create model instance connected to deployed model
             model = TextClassificationModel(model_name=model_name)
-            model._client = TritonClient(
-                server_url=server, model_name=model_name
-            )
+            model._client = TritonClient(server_url=server, model_name=model_name)
 
             # Create dataset loader
             loader = HuggingFaceDatasetLoader(dataset, split="test")
 
             # Run benchmark
             runner = BenchmarkRunner(model)
-            runner.benchmark_dataset(
-                loader,
-                batch_sizes=sizes,
-                num_samples=num_samples
-            )
+            runner.benchmark_dataset(loader, batch_sizes=sizes, num_samples=num_samples)
 
             # Print summary
             runner.print_summary()
@@ -184,6 +186,7 @@ def benchmark(model_name: str, batch_sizes: str, server: str, dataset: str,
 
             # Run simple latency test
             import time
+
             import numpy as np
 
             for size in sizes:
@@ -191,7 +194,7 @@ def benchmark(model_name: str, batch_sizes: str, server: str, dataset: str,
                 # (would need proper inputs in real implementation)
                 inputs = {
                     "input_ids": np.ones((size, 128), dtype=np.int64),
-                    "attention_mask": np.ones((size, 128), dtype=np.int64)
+                    "attention_mask": np.ones((size, 128), dtype=np.int64),
                 }
 
                 # Warmup
@@ -224,8 +227,7 @@ def model():
 
 
 @model.command("list")
-@click.option("--server", "-s", default="localhost:8000",
-              help="Triton server URL")
+@click.option("--server", "-s", default="localhost:8000", help="Triton server URL")
 def list_models(server: str):
     """List models on Triton server."""
     try:

@@ -1,8 +1,9 @@
 """Hugging Face dataset loader for benchmarking."""
 
-from typing import Dict, List, Optional, Union, Any
 import logging
-from datasets import load_dataset, Dataset
+from typing import Any, Dict, List, Optional, Union
+
+from datasets import Dataset, load_dataset
 
 logger = logging.getLogger(__name__)
 
@@ -10,8 +11,9 @@ logger = logging.getLogger(__name__)
 class HuggingFaceDatasetLoader:
     """Load and prepare Hugging Face datasets for benchmarking."""
 
-    def __init__(self, dataset_name: str, split: str = "test",
-                 config_name: Optional[str] = None):
+    def __init__(
+        self, dataset_name: str, split: str = "test", config_name: Optional[str] = None
+    ):
         """Initialize the dataset loader.
 
         Args:
@@ -35,15 +37,11 @@ class HuggingFaceDatasetLoader:
         Returns:
             Loaded dataset
         """
-        logger.info(
-            f"Loading dataset '{self.dataset_name}' (split: {self.split})"
-        )
+        logger.info(f"Loading dataset '{self.dataset_name}' (split: {self.split})")
 
         # Load dataset
         self._dataset = load_dataset(
-            self.dataset_name,
-            self.config_name,
-            split=self.split
+            self.dataset_name, self.config_name, split=self.split
         )
 
         # Limit samples if requested
@@ -63,10 +61,10 @@ class HuggingFaceDatasetLoader:
         self._preprocessor = preprocessor
 
     def get_samples(
-            self,
-            text_column: Optional[str] = None,
-            label_column: Optional[str] = None,
-            batch_size: Optional[int] = None
+        self,
+        text_column: Optional[str] = None,
+        label_column: Optional[str] = None,
+        batch_size: Optional[int] = None,
     ) -> Union[List[str], List[Dict[str, Any]]]:
         """Get samples from the dataset.
 
@@ -84,8 +82,16 @@ class HuggingFaceDatasetLoader:
         # Auto-detect text column if not specified
         if text_column is None:
             text_columns = [
-                "text", "sentence", "sentence1", "premise", "question",
-                "context", "input", "content", "review", "comment"
+                "text",
+                "sentence",
+                "sentence1",
+                "premise",
+                "question",
+                "context",
+                "input",
+                "content",
+                "review",
+                "comment",
             ]
             for col in text_columns:
                 if col in self._dataset.column_names:
@@ -107,10 +113,9 @@ class HuggingFaceDatasetLoader:
             else:
                 # Default: return text only or dict with text and label
                 if label_column:
-                    samples.append({
-                        "text": sample[text_column],
-                        "label": sample.get(label_column)
-                    })
+                    samples.append(
+                        {"text": sample[text_column], "label": sample.get(label_column)}
+                    )
                 else:
                     samples.append(sample[text_column])
 
@@ -118,7 +123,7 @@ class HuggingFaceDatasetLoader:
         if batch_size:
             batched_samples = []
             for i in range(0, len(samples), batch_size):
-                batch = samples[i:i + batch_size]
+                batch = samples[i : i + batch_size]
                 batched_samples.append(batch)
             return batched_samples
 
@@ -155,5 +160,5 @@ class HuggingFaceDatasetLoader:
                 "cifar100": "100-class image classification",
                 "food101": "Food image classification",
                 "oxford_flowers102": "Flower species classification",
-            }
+            },
         }

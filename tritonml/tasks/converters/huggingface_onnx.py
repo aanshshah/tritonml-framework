@@ -1,12 +1,13 @@
 """HuggingFace to ONNX converter implementation."""
 
-from pathlib import Path
-from typing import Dict, Any, Optional, Union
 import logging
+from pathlib import Path
+from typing import Any, Dict, Optional, Union
+
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from optimum.onnxruntime import ORTModelForSequenceClassification, ORTQuantizer
 from optimum.onnxruntime.configuration import AutoQuantizationConfig
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from ...core.converter import ONNXConverter
 
@@ -17,10 +18,10 @@ class HuggingFaceONNXConverter(ONNXConverter):
     """Converter for HuggingFace models to ONNX format."""
 
     def __init__(
-            self,
-            model: AutoModelForSequenceClassification,
-            tokenizer: AutoTokenizer,
-            config: Dict[str, Any]
+        self,
+        model: AutoModelForSequenceClassification,
+        tokenizer: AutoTokenizer,
+        config: Dict[str, Any],
     ):
         """Initialize with HuggingFace model and tokenizer."""
         super().__init__(model, config)
@@ -33,26 +34,21 @@ class HuggingFaceONNXConverter(ONNXConverter):
         output_format: str = "onnx",
         opset_version: int = 14,
         optimize_for_gpu: bool = False,
-        **kwargs
+        **kwargs,
     ) -> Path:
         """Convert HuggingFace model to ONNX format."""
         output_path = Path(output_path)
         output_path.mkdir(parents=True, exist_ok=True)
 
-        logger.info(
-            f"Converting HuggingFace model to ONNX format at {output_path}"
-        )
+        logger.info(f"Converting HuggingFace model to ONNX format at {output_path}")
 
         # Convert to ONNX using Optimum
         provider = (
-            "CUDAExecutionProvider" if optimize_for_gpu
-            else "CPUExecutionProvider"
+            "CUDAExecutionProvider" if optimize_for_gpu else "CPUExecutionProvider"
         )
 
         ort_model = ORTModelForSequenceClassification.from_pretrained(
-            self.hf_model_name,
-            export=True,
-            provider=provider
+            self.hf_model_name, export=True, provider=provider
         )
 
         # Save the model
@@ -78,7 +74,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
         method: str = "dynamic",
         output_path: Optional[Union[str, Path]] = None,
         per_channel: bool = True,
-        **kwargs
+        **kwargs,
     ) -> Path:
         """Quantize the ONNX model for better performance."""
         if output_path is None:
@@ -90,21 +86,17 @@ class HuggingFaceONNXConverter(ONNXConverter):
 
         # Load the ONNX model
         ort_model = ORTModelForSequenceClassification.from_pretrained(
-            str(output_path),
-            provider="CPUExecutionProvider"
+            str(output_path), provider="CPUExecutionProvider"
         )
 
         # Configure quantization
         if method == "dynamic":
             qconfig = AutoQuantizationConfig.arm64(
-                is_static=False,
-                per_channel=per_channel
+                is_static=False, per_channel=per_channel
             )
         elif method == "static":
             # Static quantization would need calibration data
-            raise NotImplementedError(
-                "Static quantization requires calibration data"
-            )
+            raise NotImplementedError("Static quantization requires calibration data")
         else:
             raise ValueError(f"Unknown quantization method: {method}")
 
@@ -119,12 +111,8 @@ class HuggingFaceONNXConverter(ONNXConverter):
 
         # Log new model size
         onnx_path = output_path.parent / "model.onnx"
-        original_size = (
-            self.get_model_size(onnx_path) if onnx_path.exists() else 0
-        )
-        quantized_size = self.get_model_size(
-            output_path / "model_quantized.onnx"
-        )
+        original_size = self.get_model_size(onnx_path) if onnx_path.exists() else 0
+        quantized_size = self.get_model_size(output_path / "model_quantized.onnx")
 
         if original_size > 0:
             compression_ratio = original_size / quantized_size
@@ -140,20 +128,15 @@ class HuggingFaceONNXConverter(ONNXConverter):
     def optimize(
         self,
         output_path: Union[str, Path],
-        optimization_config: Optional[Dict[str, Any]] = None
+        optimization_config: Optional[Dict[str, Any]] = None,
     ) -> Path:
         """Apply additional optimizations to the ONNX model."""
         output_path = Path(output_path)
 
         if optimization_config is None:
-            optimization_config = {
-                "enable_all": True,
-                "optimization_level": 99
-            }
+            optimization_config = {"enable_all": True, "optimization_level": 99}
 
-        logger.info(
-            f"Optimizing ONNX model with config: {optimization_config}"
-        )
+        logger.info(f"Optimizing ONNX model with config: {optimization_config}")
 
         # Load and optimize using ONNX Runtime optimizations
         import onnxruntime as ort
@@ -181,7 +164,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
         return output_path
 
     def validate_conversion(
-            self, original_model: Any, converted_model_path: Path
+        self, original_model: Any, converted_model_path: Path
     ) -> bool:
         """Validate the converted model produces similar outputs."""
         # Basic file existence check
@@ -193,8 +176,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
         try:
             # Load the converted model
             ort_model = ORTModelForSequenceClassification.from_pretrained(
-                str(converted_model_path),
-                provider="CPUExecutionProvider"
+                str(converted_model_path), provider="CPUExecutionProvider"
             )
 
             # Test with sample input
@@ -204,7 +186,7 @@ class HuggingFaceONNXConverter(ONNXConverter):
                 return_tensors="pt",
                 max_length=self.config.get("max_length", 128),
                 truncation=True,
-                padding="max_length"
+                padding="max_length",
             )
 
             # Get outputs from both models
@@ -214,17 +196,14 @@ class HuggingFaceONNXConverter(ONNXConverter):
 
             # Compare outputs (allowing small numerical differences)
             import torch
-            max_diff = torch.max(
-                torch.abs(original_outputs - onnx_outputs)
-            ).item()
+
+            max_diff = torch.max(torch.abs(original_outputs - onnx_outputs)).item()
 
             if max_diff < 1e-3:
                 logger.info(f"Validation passed. Max difference: {max_diff}")
                 return True
             else:
-                logger.warning(
-                    f"Validation failed. Max difference: {max_diff}"
-                )
+                logger.warning(f"Validation failed. Max difference: {max_diff}")
                 return False
 
         except Exception as e:

@@ -1,12 +1,12 @@
 """Base model class for TritonML framework."""
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Union, List
-from pathlib import Path
 import logging
+from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
-from .config import TritonConfig
 from .client import TritonClient
+from .config import TritonConfig
 from .converter import ModelConverter
 
 logger = logging.getLogger(__name__)
@@ -23,15 +23,13 @@ class TritonModel(ABC):
 
     @classmethod
     @abstractmethod
-    def from_pretrained(
-            cls, model_name_or_path: str, **kwargs
-    ) -> "TritonModel":
+    def from_pretrained(cls, model_name_or_path: str, **kwargs) -> "TritonModel":
         """Load a model from a pretrained source."""
         pass
 
     @classmethod
     def from_huggingface(
-            cls, model_id: str, task: Optional[str] = None, **kwargs
+        cls, model_id: str, task: Optional[str] = None, **kwargs
     ) -> "TritonModel":
         """Create a model from HuggingFace hub."""
         from ..tasks import get_task_model
@@ -55,9 +53,7 @@ class TritonModel(ABC):
         elif "vit" in model_id.lower() or "resnet" in model_id.lower():
             return "image-classification"
         else:
-            raise ValueError(
-                f"Could not auto-detect task for model {model_id}"
-            )
+            raise ValueError(f"Could not auto-detect task for model {model_id}")
 
     @abstractmethod
     def preprocess(self, inputs: Any) -> Dict[str, Any]:
@@ -79,8 +75,7 @@ class TritonModel(ABC):
 
         # Run inference
         outputs = self._client.infer(
-            model_name=self.config.model_name,
-            inputs=processed_inputs
+            model_name=self.config.model_name, inputs=processed_inputs
         )
 
         # Postprocess
@@ -93,9 +88,7 @@ class TritonModel(ABC):
 
         output_path = self.config.model_path
         self._converter.convert(
-            output_path=output_path,
-            output_format=output_format,
-            **kwargs
+            output_path=output_path, output_format=output_format, **kwargs
         )
 
         # Save Triton configuration
@@ -114,30 +107,27 @@ class TritonModel(ABC):
             self._converter = self._get_converter()
 
         self._converter.quantize(
-            method=method,
-            output_path=self.config.model_path,
-            **kwargs
+            method=method, output_path=self.config.model_path, **kwargs
         )
 
         return self
 
     def optimize(
-            self, optimization_config: Optional[Dict[str, Any]] = None
+        self, optimization_config: Optional[Dict[str, Any]] = None
     ) -> "TritonModel":
         """Apply optimizations to the model."""
         if optimization_config is None:
             optimization_config = {
                 "enable_quantization": True,
                 "enable_graph_optimization": True,
-                "optimization_level": 99
+                "optimization_level": 99,
             }
 
         if self._converter is None:
             self._converter = self._get_converter()
 
         self._converter.optimize(
-            output_path=self.config.model_path,
-            optimization_config=optimization_config
+            output_path=self.config.model_path, optimization_config=optimization_config
         )
 
         return self
@@ -154,22 +144,18 @@ class TritonModel(ABC):
 
         # Create client
         self._client = TritonClient(
-            server_url=self.config.triton_server_url,
-            model_name=self.config.model_name
+            server_url=self.config.triton_server_url, model_name=self.config.model_name
         )
 
         # Verify deployment
         if not self._client.is_model_ready():
-            raise RuntimeError(
-                f"Model {self.config.model_name} is not ready on server"
-            )
+            raise RuntimeError(f"Model {self.config.model_name} is not ready on server")
 
         logger.info(f"Model {self.config.model_name} deployed successfully")
         return self._client
 
     def benchmark(
-            self, test_inputs: List[Any],
-            batch_sizes: List[int] = [1, 8, 16, 32]
+        self, test_inputs: List[Any], batch_sizes: List[int] = [1, 8, 16, 32]
     ) -> Dict[str, Any]:
         """Benchmark the model with different batch sizes."""
         if self._client is None:
@@ -178,13 +164,12 @@ class TritonModel(ABC):
         results = {}
         for batch_size in batch_sizes:
             # Create batch
-            batch = test_inputs[:batch_size] * (
-                batch_size // len(test_inputs) + 1
-            )
+            batch = test_inputs[:batch_size] * (batch_size // len(test_inputs) + 1)
             batch = batch[:batch_size]
 
             # Run benchmark
             import time
+
             start = time.time()
             for _ in range(10):  # Run 10 iterations
                 self.predict(batch)
@@ -192,7 +177,7 @@ class TritonModel(ABC):
 
             results[f"batch_{batch_size}"] = {
                 "avg_latency_ms": (elapsed / 10) * 1000,
-                "throughput": (batch_size * 10) / elapsed
+                "throughput": (batch_size * 10) / elapsed,
             }
 
         return results
@@ -204,10 +189,11 @@ class TritonModel(ABC):
 
         # Save config
         import json
+
         config_dict = {
             "model_name": self.config.model_name,
             "model_version": self.config.model_version,
-            "config": self.config.__dict__
+            "config": self.config.__dict__,
         }
 
         with open(path / "model_config.json", "w") as f:
@@ -222,11 +208,10 @@ class TritonModel(ABC):
 
         # Load config
         import json
+
         with open(path / "model_config.json", "r") as f:
             json.load(f)  # config_dict would be used here
 
         # Reconstruct model
         # This would need task-specific loading logic
-        raise NotImplementedError(
-            "Model loading to be implemented by subclasses"
-        )
+        raise NotImplementedError("Model loading to be implemented by subclasses")

@@ -1,14 +1,15 @@
 """Docker deployment utilities for TritonML."""
 
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 import yaml
 
 
 def generate_dockerfile(
     base_image: str = "nvcr.io/nvidia/tritonserver:24.08-py3",
     model_repository: str = "/models",
-    additional_packages: Optional[list] = None
+    additional_packages: Optional[list] = None,
 ) -> str:
     """Generate a Dockerfile for Triton deployment."""
 
@@ -42,16 +43,12 @@ def generate_docker_compose(
     service_name: str = "triton",
     model_repository: str = "./models",
     ports: Dict[str, int] = None,
-    environment: Dict[str, str] = None
+    environment: Dict[str, str] = None,
 ) -> Dict[str, Any]:
     """Generate docker-compose configuration."""
 
     if ports is None:
-        ports = {
-            "8000": 8000,  # HTTP
-            "8001": 8001,  # GRPC
-            "8002": 8002   # Metrics
-        }
+        ports = {"8000": 8000, "8001": 8001, "8002": 8002}  # HTTP  # GRPC  # Metrics
 
     if environment is None:
         environment = {}
@@ -61,32 +58,29 @@ def generate_docker_compose(
         "services": {
             service_name: {
                 "image": "nvcr.io/nvidia/tritonserver:24.08-py3",
-                "ports": [
-                    f"{host}:{container}"
-                    for host, container in ports.items()
-                ],
-                "volumes": [
-                    f"{model_repository}:/models"
-                ],
+                "ports": [f"{host}:{container}" for host, container in ports.items()],
+                "volumes": [f"{model_repository}:/models"],
                 "environment": environment,
                 "command": [
                     "tritonserver",
                     "--model-repository=/models",
-                    "--strict-model-config=false"
+                    "--strict-model-config=false",
                 ],
                 "deploy": {
                     "resources": {
                         "reservations": {
-                            "devices": [{
-                                "driver": "nvidia",
-                                "count": "all",
-                                "capabilities": ["gpu"]
-                            }]
+                            "devices": [
+                                {
+                                    "driver": "nvidia",
+                                    "count": "all",
+                                    "capabilities": ["gpu"],
+                                }
+                            ]
                         }
                     }
-                }
+                },
             }
-        }
+        },
     }
 
     return compose_config
@@ -95,7 +89,7 @@ def generate_docker_compose(
 def save_docker_files(
     output_path: Path,
     dockerfile_content: Optional[str] = None,
-    compose_config: Optional[Dict[str, Any]] = None
+    compose_config: Optional[Dict[str, Any]] = None,
 ) -> None:
     """Save Docker deployment files."""
 
@@ -115,9 +109,7 @@ def save_docker_files(
 
 
 def create_deployment_package(
-    model_name: str,
-    output_path: Path,
-    include_client: bool = True
+    model_name: str, output_path: Path, include_client: bool = True
 ) -> None:
     """Create a complete deployment package with Docker files."""
 
@@ -128,10 +120,7 @@ def create_deployment_package(
 
     # Generate docker-compose
     compose = generate_docker_compose(
-        service_name=f"triton-{model_name}",
-        environment={
-            "MODEL_NAME": model_name
-        }
+        service_name=f"triton-{model_name}", environment={"MODEL_NAME": model_name}
     )
 
     # Save files

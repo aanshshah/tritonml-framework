@@ -1,14 +1,16 @@
 """Text classification model implementation."""
 
-from typing import Dict, Any, List, Union, Optional
-import numpy as np
 from pathlib import Path
-# import torch  # Used in converter module
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from typing import Any, Dict, List, Optional, Union
 
-from ..core.model import TritonModel
+import numpy as np
+
+# import torch  # Used in converter module
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
 from ..core.config import TextClassificationConfig
 from ..core.converter import ModelConverter
+from ..core.model import TritonModel
 from .converters.huggingface_onnx import HuggingFaceONNXConverter
 
 
@@ -19,7 +21,7 @@ class TextClassificationModel(TritonModel):
         self,
         config: TextClassificationConfig,
         tokenizer: Optional[AutoTokenizer] = None,
-        model: Optional[AutoModelForSequenceClassification] = None
+        model: Optional[AutoModelForSequenceClassification] = None,
     ):
         """Initialize text classification model."""
         super().__init__(config)
@@ -34,21 +36,18 @@ class TextClassificationModel(TritonModel):
         model_name: Optional[str] = None,
         labels: Optional[List[str]] = None,
         max_sequence_length: int = 128,
-        **kwargs
+        **kwargs,
     ) -> "TextClassificationModel":
         """Load a text classification model from HuggingFace."""
         # Load model and tokenizer
         tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
-        model = AutoModelForSequenceClassification.from_pretrained(
-            model_name_or_path
-        )
+        model = AutoModelForSequenceClassification.from_pretrained(model_name_or_path)
 
         # Infer labels if not provided
         if labels is None:
             if hasattr(model.config, "id2label"):
                 labels = [
-                    model.config.id2label[i]
-                    for i in range(model.config.num_labels)
+                    model.config.id2label[i] for i in range(model.config.num_labels)
                 ]
             else:
                 labels = [f"LABEL_{i}" for i in range(model.config.num_labels)]
@@ -62,14 +61,12 @@ class TextClassificationModel(TritonModel):
             max_sequence_length=max_sequence_length,
             labels=labels,
             tokenizer_name=model_name_or_path,
-            **kwargs
+            **kwargs,
         )
 
         return cls(config=config, tokenizer=tokenizer, model=model)
 
-    def preprocess(
-            self, inputs: Union[str, List[str]]
-    ) -> Dict[str, np.ndarray]:
+    def preprocess(self, inputs: Union[str, List[str]]) -> Dict[str, np.ndarray]:
         """Preprocess text inputs for inference."""
         if isinstance(inputs, str):
             inputs = [inputs]
@@ -80,17 +77,15 @@ class TextClassificationModel(TritonModel):
             max_length=self.config.max_sequence_length,
             padding="max_length",
             truncation=True,
-            return_tensors="np"
+            return_tensors="np",
         )
 
         return {
             "input_ids": encoded["input_ids"].astype(np.int64),
-            "attention_mask": encoded["attention_mask"].astype(np.int64)
+            "attention_mask": encoded["attention_mask"].astype(np.int64),
         }
 
-    def postprocess(
-            self, outputs: Dict[str, np.ndarray]
-    ) -> Union[str, List[str]]:
+    def postprocess(self, outputs: Dict[str, np.ndarray]) -> Union[str, List[str]]:
         """Postprocess model outputs to get predictions."""
         logits = outputs["logits"]
 
@@ -115,8 +110,7 @@ class TextClassificationModel(TritonModel):
 
         # Run inference
         outputs = self._client.infer(
-            model_name=self.config.model_name,
-            inputs=processed_inputs
+            model_name=self.config.model_name, inputs=processed_inputs
         )
 
         # Apply softmax to get probabilities
@@ -138,8 +132,8 @@ class TextClassificationModel(TritonModel):
             config={
                 "task": "text-classification",
                 "max_length": self.config.max_sequence_length,
-                "model_name": self.config.tokenizer_name
-            }
+                "model_name": self.config.tokenizer_name,
+            },
         )
 
     def explain(self, text: str, method: str = "attention") -> Dict[str, Any]:
@@ -150,9 +144,7 @@ class TextClassificationModel(TritonModel):
 
             # This would need special handling in the converter
             # to expose attention weights
-            raise NotImplementedError(
-                "Attention-based explanation not yet implemented"
-            )
+            raise NotImplementedError("Attention-based explanation not yet implemented")
         else:
             raise ValueError(f"Unknown explanation method: {method}")
 
@@ -168,11 +160,9 @@ class EmotionClassifier(TextClassificationModel):
 
     @classmethod
     def from_pretrained(
-            cls,
-            model_name_or_path: str = (
-                "cardiffnlp/twitter-roberta-base-emotion"
-            ),
-            **kwargs
+        cls,
+        model_name_or_path: str = ("cardiffnlp/twitter-roberta-base-emotion"),
+        **kwargs,
     ) -> "EmotionClassifier":
         """Load the emotion classification model."""
         # Set emotion-specific defaults
@@ -187,11 +177,9 @@ class SentimentClassifier(TextClassificationModel):
 
     @classmethod
     def from_pretrained(
-            cls,
-            model_name_or_path: str = (
-                "distilbert-base-uncased-finetuned-sst-2-english"
-            ),
-            **kwargs
+        cls,
+        model_name_or_path: str = ("distilbert-base-uncased-finetuned-sst-2-english"),
+        **kwargs,
     ) -> "SentimentClassifier":
         """Load the sentiment classification model."""
         # Set sentiment-specific defaults

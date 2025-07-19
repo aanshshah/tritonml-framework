@@ -1,9 +1,10 @@
 """Generic Triton client for the TritonML framework."""
 
+import logging
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 import tritonclient.http as httpclient
-from typing import Dict, List, Any, Optional
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -11,9 +12,7 @@ logger = logging.getLogger(__name__)
 class TritonClient:
     """Enhanced Triton client with additional functionality."""
 
-    def __init__(
-            self, server_url: str, model_name: str, model_version: str = "1"
-    ):
+    def __init__(self, server_url: str, model_name: str, model_version: str = "1"):
         """Initialize the Triton client."""
         self.server_url = server_url
         self.model_name = model_name
@@ -43,8 +42,7 @@ class TritonClient:
         """Check if the model is ready for inference."""
         try:
             return self._client.is_model_ready(
-                model_name=self.model_name,
-                model_version=self.model_version
+                model_name=self.model_name, model_version=self.model_version
             )
         except Exception as e:
             logger.error(f"Model ready check failed: {e}")
@@ -54,8 +52,7 @@ class TritonClient:
         """Get model metadata from the server."""
         if self._model_metadata is None:
             self._model_metadata = self._client.get_model_metadata(
-                model_name=self.model_name,
-                model_version=self.model_version
+                model_name=self.model_name, model_version=self.model_version
             )
         return self._model_metadata
 
@@ -63,13 +60,12 @@ class TritonClient:
         """Get model configuration from the server."""
         if self._model_config is None:
             self._model_config = self._client.get_model_config(
-                model_name=self.model_name,
-                model_version=self.model_version
+                model_name=self.model_name, model_version=self.model_version
             )
         return self._model_config
 
     def prepare_inputs(
-            self, inputs: Dict[str, np.ndarray]
+        self, inputs: Dict[str, np.ndarray]
     ) -> List[httpclient.InferInput]:
         """Prepare inputs for Triton inference."""
         triton_inputs = []
@@ -86,15 +82,13 @@ class TritonClient:
         return triton_inputs
 
     def prepare_outputs(
-            self, output_names: Optional[List[str]] = None
+        self, output_names: Optional[List[str]] = None
     ) -> List[httpclient.InferRequestedOutput]:
         """Prepare output requests for Triton inference."""
         if output_names is None:
             # Get all outputs from model metadata
             metadata = self.get_model_metadata()
-            output_names = [
-                output["name"] for output in metadata.get("outputs", [])
-            ]
+            output_names = [output["name"] for output in metadata.get("outputs", [])]
 
         return [httpclient.InferRequestedOutput(name) for name in output_names]
 
@@ -103,7 +97,7 @@ class TritonClient:
         inputs: Dict[str, np.ndarray],
         outputs: Optional[List[str]] = None,
         request_id: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, np.ndarray]:
         """Run inference on the model."""
         # Prepare inputs
@@ -119,7 +113,7 @@ class TritonClient:
             inputs=triton_inputs,
             outputs=triton_outputs,
             request_id=request_id,
-            **kwargs
+            **kwargs,
         )
 
         # Extract outputs
@@ -133,7 +127,7 @@ class TritonClient:
     def infer_batch(
         self,
         batch_inputs: List[Dict[str, np.ndarray]],
-        outputs: Optional[List[str]] = None
+        outputs: Optional[List[str]] = None,
     ) -> List[Dict[str, np.ndarray]]:
         """Run batch inference on multiple inputs."""
         # Stack inputs into batches
@@ -159,8 +153,7 @@ class TritonClient:
         """Get inference statistics for the model."""
         try:
             stats = self._client.get_inference_statistics(
-                model_name=self.model_name,
-                model_version=self.model_version
+                model_name=self.model_name, model_version=self.model_version
             )
             return stats
         except Exception as e:
@@ -191,7 +184,7 @@ class TritonClient:
             np.uint32: "UINT32",
             np.uint64: "UINT64",
             np.bool_: "BOOL",
-            np.object_: "BYTES"
+            np.object_: "BYTES",
         }
 
         for np_type, triton_type in dtype_map.items():

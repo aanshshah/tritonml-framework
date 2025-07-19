@@ -1,15 +1,16 @@
 """Tests for text classification models."""
 
-import pytest
-import numpy as np
 from unittest.mock import Mock, patch
 
-from tritonml.tasks.text_classification import (
-    TextClassificationModel,
-    EmotionClassifier,
-    SentimentClassifier
-)
+import numpy as np
+import pytest
+
 from tritonml.core.config import TextClassificationConfig
+from tritonml.tasks.text_classification import (
+    EmotionClassifier,
+    SentimentClassifier,
+    TextClassificationModel,
+)
 
 
 class TestTextClassificationModel:
@@ -23,7 +24,10 @@ class TestTextClassificationModel:
         mock_model_instance = Mock()
         mock_model_instance.config.num_labels = 4
         mock_model_instance.config.id2label = {
-            0: "anger", 1: "joy", 2: "optimism", 3: "sadness"
+            0: "anger",
+            1: "joy",
+            2: "optimism",
+            3: "sadness",
         }
         mock_model.return_value = mock_model_instance
 
@@ -42,16 +46,13 @@ class TestTextClassificationModel:
 
     def test_preprocess_single_text(self):
         """Test preprocessing single text input."""
-        config = TextClassificationConfig(
-            model_name="test",
-            labels=["pos", "neg"]
-        )
+        config = TextClassificationConfig(model_name="test", labels=["pos", "neg"])
 
         # Mock tokenizer
         mock_tokenizer = Mock()
         mock_tokenizer.return_value = {
             "input_ids": np.array([[101, 2023, 102]]),
-            "attention_mask": np.array([[1, 1, 1]])
+            "attention_mask": np.array([[1, 1, 1]]),
         }
 
         model = TextClassificationModel(config, tokenizer=mock_tokenizer)
@@ -64,16 +65,13 @@ class TestTextClassificationModel:
 
     def test_preprocess_batch(self):
         """Test preprocessing batch of texts."""
-        config = TextClassificationConfig(
-            model_name="test",
-            labels=["pos", "neg"]
-        )
+        config = TextClassificationConfig(model_name="test", labels=["pos", "neg"])
 
         # Mock tokenizer
         mock_tokenizer = Mock()
         mock_tokenizer.return_value = {
             "input_ids": np.array([[101, 2023, 102], [101, 2000, 102]]),
-            "attention_mask": np.array([[1, 1, 1], [1, 1, 1]])
+            "attention_mask": np.array([[1, 1, 1], [1, 1, 1]]),
         }
 
         model = TextClassificationModel(config, tokenizer=mock_tokenizer)
@@ -86,8 +84,7 @@ class TestTextClassificationModel:
     def test_postprocess_single(self):
         """Test postprocessing single prediction."""
         config = TextClassificationConfig(
-            model_name="test",
-            labels=["negative", "positive"]
+            model_name="test", labels=["negative", "positive"]
         )
 
         model = TextClassificationModel(config)
@@ -100,8 +97,7 @@ class TestTextClassificationModel:
     def test_postprocess_batch(self):
         """Test postprocessing batch predictions."""
         config = TextClassificationConfig(
-            model_name="test",
-            labels=["negative", "positive"]
+            model_name="test", labels=["negative", "positive"]
         )
 
         model = TextClassificationModel(config)
@@ -113,10 +109,7 @@ class TestTextClassificationModel:
 
     def test_predict_proba(self):
         """Test getting prediction probabilities."""
-        config = TextClassificationConfig(
-            model_name="test",
-            labels=["neg", "pos"]
-        )
+        config = TextClassificationConfig(model_name="test", labels=["neg", "pos"])
 
         model = TextClassificationModel(config)
 
@@ -129,7 +122,7 @@ class TestTextClassificationModel:
         mock_tokenizer = Mock()
         mock_tokenizer.return_value = {
             "input_ids": np.array([[101, 102]]),
-            "attention_mask": np.array([[1, 1]])
+            "attention_mask": np.array([[1, 1]]),
         }
         model._tokenizer = mock_tokenizer
 
