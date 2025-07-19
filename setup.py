@@ -22,7 +22,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.11",
     ],
-    python_requires=">=3.11",
+    python_requires=">=3.8",
     install_requires=[
         "tritonclient[http]>=2.36.0",
         "transformers>=4.30.0",
