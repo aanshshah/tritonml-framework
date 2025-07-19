@@ -11,7 +11,6 @@ from ..core.model import TritonModel
 # from pathlib import Path  # Unused import
 
 
-
 class ImageClassificationModel(TritonModel):
     """Image classification model for Triton deployment."""
 

@@ -10,7 +10,6 @@ from tritonml.core.model import TritonModel
 # import numpy as np  # Unused import
 
 
-
 class MockModel(TritonModel):
     """Mock model for testing."""
 
