@@ -345,6 +345,31 @@ Example results for emotion classification:
 - Latency: 2-4x faster inference
 - Accuracy: 93.8% maintained
 
+## CI/CD Setup
+
+### GitHub Actions
+
+The repository uses GitHub Actions for continuous integration. The workflow runs:
+- Linting with flake8
+- Code formatting checks with black and isort
+- Type checking with mypy
+- Unit tests with pytest
+- Code coverage reporting with Codecov
+
+### Setting up Codecov
+
+To enable Codecov integration for your fork:
+
+1. Sign up at [codecov.io](https://codecov.io) using your GitHub account
+2. Add your repository to Codecov
+3. Copy your repository's upload token
+4. Add the token as a GitHub secret:
+   - Go to Settings → Secrets → Actions
+   - Add a new secret named `CODECOV_TOKEN`
+   - Paste your token as the value
+
+Note: The CI will still pass even if Codecov upload fails, to handle rate limiting for public repositories.
+
 ## Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
